@@ -240,18 +240,18 @@
             "type": "array",
             "properties": [
                 {
-                    "key": "db.userpass",
-                    "label": "DB User Password",
-                    "description": "The passowrd of user 'root'",
+                    "key": "conf.userPass",
+                    "label": "User root's Password",
+                    "description": "User root's Password",
                     "type": "password",
                     "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}",
                     "default": "Passw0rd",
                     "required": "no"
                 },
                 {
-                    "key": "conf.mongod.engine",
-                    "label": "Storage engine",
-                    "description": "Storage engine",
+                    "key": "conf.storage.engine",
+                    "label": "storage.engine",
+                    "description": "storage.engine",
                     "type": "string",
                     "default": "wiredTiger",
                     "range": ["wiredTiger"],
@@ -259,28 +259,100 @@
                     "required": "yes"
                 },
                 {
-                    "key": "conf.mongod.port",
-                    "label": "Listening port",
-                    "description": "Listening port",
-                    "type": "integer",
-                    "default": 27017,
-                    "required": "yes"
+                    "key": "mongos_node",
+                    "description": "The role configuration properties of the application",
+                    "type": "array",
+                    "properties": [{
+                        "key": "conf.net.port",
+                        "label": "net.port",
+                        "description": "net.port",
+                        "type": "integer",
+                        "default": 27019,
+                        "required": "yes"
+                    }, {
+                        "key": "conf.setParameter.cursorTimeoutMillis",
+                        "label": "setParameter.cursorTimeoutMillis",
+                        "description": "setParameter.cursorTimeoutMillis",
+                        "type": "integer",
+                        "default": 600000,
+                        "required": "yes"
+                    }]
                 },
                 {
-                    "key": "conf.mongod.replication.oplogSizeMB",
-                    "label": "replication.oplogSizeMB",
-                    "description": "The maximum size in megabytes for the replication operation log",
-                    "type": "integer",
-                    "default": 2048,
-                    "required": "yes"
+                    "key": "cs_node",
+                    "description": "The role configuration properties of the application",
+                    "type": "array",
+                    "properties": [{
+                        "key": "conf.net.port",
+                        "label": "net.port",
+                        "description": "net.port",
+                        "type": "integer",
+                        "default": 27018,
+                        "required": "yes"
+                    }, {
+                        "key": "conf.setParameter.cursorTimeoutMillis",
+                        "label": "setParameter.cursorTimeoutMillis",
+                        "description": "setParameter.cursorTimeoutMillis",
+                        "type": "integer",
+                        "default": 600000,
+                        "required": "yes"
+                    }, {
+                        "key": "conf.operationProfiling.mode",
+                        "label": "operationProfiling.mode",
+                        "description": "operationProfiling.mode",
+                        "type": "string",
+                        "default": "off",
+                        "required": "yes"
+                    }, {
+                        "key": "conf.operationProfiling.slowOpThresholdMs",
+                        "label": "operationProfiling.slowOpThresholdMs",
+                        "description": "operationProfiling.slowOpThresholdMs",
+                        "type": "integer",
+                        "default": 100,
+                        "required": "yes"
+                    }]
                 },
                 {
-                    "key": "conf.mongod.replication.enableMajorityReadConcern",
-                    "label": "replication.enableMajorityReadConcern",
-                    "description": "oplog size",
-                    "type": "boolean",
-                    "default": true,
-                    "required": "yes"
+                    "key": "shard_node",
+                    "description": "The role configuration properties of the application",
+                    "type": "array",
+                    "properties": [{
+                        "key": "conf.net.port",
+                        "label": "net.port",
+                        "description": "net.port",
+                        "type": "integer",
+                        "default": 27017,
+                        "required": "yes"
+                    }, {
+                        "key": "conf.setParameter.cursorTimeoutMillis",
+                        "label": "setParameter.cursorTimeoutMillis",
+                        "description": "setParameter.cursorTimeoutMillis",
+                        "type": "integer",
+                        "default": 600000,
+                        "required": "yes"
+                    }, {
+                        "key": "conf.operationProfiling.mode",
+                        "label": "operationProfiling.mode",
+                        "description": "operationProfiling.mode",
+                        "type": "string",
+                        "default": "off",
+                        "required": "yes"
+                    }, {
+                        "key": "conf.operationProfiling.slowOpThresholdMs",
+                        "label": "operationProfiling.slowOpThresholdMs",
+                        "description": "operationProfiling.slowOpThresholdMs",
+                        "type": "integer",
+                        "default": 100,
+                        "required": "yes"
+                    }, {
+                        "key": "conf.replication.enableMajorityReadConcern",
+                        "label": "replication.enableMajorityReadConcern",
+                        "description": "replication.enableMajorityReadConcern",
+                        "type": "string",
+                        "default": "true",
+                        "range": ["true", "false"],
+                        "required": "yes"
+                    }]
                 }
             ]
         }

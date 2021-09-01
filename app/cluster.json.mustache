@@ -150,10 +150,18 @@
         }
     }],
     "env": {
-        "db.userpass": {{env.db.userpass}},
-        "conf.mongod.engine": {{env.conf.mongod.engine}},
-        "conf.mongod.port": {{env.conf.mongod.port}},
-        "conf.mongod.replication.oplogSizeMB": {{env.conf.mongod.replication.oplogSizeMB}},
-        "conf.mongod.replication.enableMajorityReadConcern": {{env.conf.mongod.replication.enableMajorityReadConcern}}
+        "conf.userPass": {{env.conf.userPass}},
+        "conf.storage.engine": {{env.conf.storage.engine}},
+        "mongos_node.conf.net.port": {{env.mongos_node.conf.net.port}},
+        "mongos_node.conf.setParameter.cursorTimeoutMillis": {{env.mongos_node.conf.setParameter.cursorTimeoutMillis}},
+        "cs_node.conf.net.port": {{env.cs_node.conf.net.port}},
+        "cs_node.conf.setParameter.cursorTimeoutMillis": {{env.cs_node.conf.setParameter.cursorTimeoutMillis}},
+        "cs_node.conf.operationProfiling.mode": {{env.cs_node.conf.operationProfiling.mode}},
+        "cs_node.conf.operationProfiling.slowOpThresholdMs": {{env.cs_node.conf.operationProfiling.slowOpThresholdMs}},
+        "shard_node.conf.net.port": {{env.shard_node.conf.net.port}},
+        "shard_node.conf.setParameter.cursorTimeoutMillis": {{env.shard_node.conf.setParameter.cursorTimeoutMillis}},
+        "shard_node.conf.operationProfiling.mode": {{env.shard_node.conf.operationProfiling.mode}},
+        "shard_node.conf.operationProfiling.slowOpThresholdMs": {{env.shard_node.conf.operationProfiling.slowOpThresholdMs}},
+        "shard_node.conf.replication.enableMajorityReadConcern": {{env.shard_node.conf.replication.enableMajorityReadConcern}}
     }
 }

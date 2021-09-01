@@ -3,13 +3,10 @@
 {{- $verticalScalingFlag := "" }}
 {{- $changeVxnetFlag := "" }}
 {{- $changeVxnetRoles := "" }}
-{{- $replList := "" }}
-{{- $roList := "" }}
 {{- $addingHostsFlag := "" }}
 {{- $addingList := "" }}
 {{- $deletingHostsFlag := "" }}
 {{- $deletingList := "" }}
-{{- $currentList := "" }}
 {{- $tmpval := "" }}
 
 {{- if len (ls "/vertical-scaling-roles") }}
@@ -22,29 +19,6 @@
   {{- $changeVxnetRoles = getv "/change-vxnet-audit/roles" }}
 {{- else }}
   {{- $changeVxnetFlag = "false" }}
-{{- end }}
-
-{{- range lsdir "/hosts/repl_node" -}}
-  {{- $ip := getv (printf "/hosts/repl_node/%s/ip" .) -}}
-  {{- $sid := getv (printf "/hosts/repl_node/%s/sid" .) -}}
-  {{- $node_id := getv (printf "/hosts/repl_node/%s/node_id" .) -}}
-  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
-{{- end }}
-{{- $replList = $tmpval }}
-
-{{- $tmpval = "" }}
-{{- range lsdir "/hosts/ro_node" -}}
-  {{- $ip := getv (printf "/hosts/ro_node/%s/ip" .) -}}
-  {{- $sid := getv (printf "/hosts/ro_node/%s/sid" .) -}}
-  {{- $node_id := getv (printf "/hosts/ro_node/%s/node_id" .) -}}
-  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
-{{- end }}
-{{- $roList = $tmpval }}
-
-{{- if eq $nodeRole "repl_node" }}
-  {{- $currentList = $replList }}
-{{- else }}
-  {{- $currentList = $roList }}
 {{- end }}
 
 {{- $tmpval = "" }}
@@ -76,6 +50,58 @@
   {{- $deletingHostsFlag = "false" }}
   {{- $deletingList = "" }}
 {{- end }}
+
+# cs_node
+{{- $cs_node_list := "" }}
+{{- $tmpval = "" }}
+{{- range lsdir "/hosts/cs_node" -}}
+  {{- $ip := getv (printf "/hosts/cs_node/%s/ip" .) -}}
+  {{- $sid := getv (printf "/hosts/cs_node/%s/sid" .) -}}
+  {{- $node_id := getv (printf "/hosts/cs_node/%s/node_id" .) -}}
+  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+{{- end }}
+{{- $cs_node_list = $tmpval }}
+
+# mongos_node
+{{- $mongos_node_list := "" }}
+{{- $tmpval = "" }}
+{{- range lsdir "/hosts/mongos_node" -}}
+  {{- $ip := getv (printf "/hosts/mongos_node/%s/ip" .) -}}
+  {{- $sid := getv (printf "/hosts/mongos_node/%s/sid" .) -}}
+  {{- $node_id := getv (printf "/hosts/mongos_node/%s/node_id" .) -}}
+  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+{{- end }}
+{{- $mongos_node_list = $tmpval }}
+
+# shard_node
+{{- $group_list := "" }}
+{{- $tmpval = "" }}
+{{- range lsdir "/hosts/shard_node" -}}
+  {{- $gid := getv (printf "/hosts/shard_node/%s/gid" .) -}}
+  {{- $tmpval = printf "%s%s " $tmpval $gid }}
+{{- end }}
+{{- $group_list = $tmpval }}
+shard_group_list=({{ $group_list }})
+{{- $tmpval = "" }}
+{{- range lsdir "/hosts/shard_node" -}}
+  {{- $gid := getv (printf "/hosts/shard_node/%s/gid" .) -}}
+  {{- $ip := getv (printf "/hosts/shard_node/%s/ip" .) -}}
+  {{- $sid := getv (printf "/hosts/shard_node/%s/sid" .) -}}
+  {{- $node_id := getv (printf "/hosts/shard_node/%s/node_id" .) -}}
+  {{- $tmpval = printf "%s%s/%s/%s/%s " $tmpval $sid $ip $node_id $gid }}
+  {{- range lsdir "/hosts/shard_node-replica" -}}
+    {{- $gid2 := getv (printf "/hosts/shard_node-replica/%s/gid" .) -}}
+    {{- $ip2 := getv (printf "/hosts/shard_node-replica/%s/ip" .) -}}
+    {{- $sid2 := getv (printf "/hosts/shard_node-replica/%s/sid" .) -}}
+    {{- $node_id2 := getv (printf "/hosts/shard_node-replica/%s/node_id" .) -}}
+    {{- $tmpval = printf "%s%s/%s/%s/%s " $tmpval $sid2 $ip2 $node_id2 $gid2 }}
+  {{- end }}
+shard_{{ $gid }}_list=({{ $tmpval}})
+encrypted=$(echo -n {{ $node_id }} | sha256sum | base64)
+shard_{{ $gid }}_rsname=${encrypted:0:16}
+  {{- $tmpval = "" }}
+{{- end }}
+
 # cluster
 confd_cluster_global_uuid={{ getv "/cluster/global_uuid" }}
 confd_cluster_id={{ getv "/cluster/cluster_id" }}
@@ -90,9 +116,6 @@ confd_env_db_userpass={{ getv "/env/db.userpass" }}
 confd_env_conf_mongod_replication_oplogSizeMB={{ getv "/env/conf.mongod.replication.oplogSizeMB" }}
 confd_env_conf_mongod_replication_enableMajorityReadConcern={{ getv "/env/conf.mongod.replication.enableMajorityReadConcern" }}
 # cluster hosts
-confd_repl_node_hosts=({{ $replList }})
-confd_ro_node_hosts=({{ $roList }})
-confd_cur_node_hosts=({{ $currentList }})
 confd_adding_hosts=({{ $addingList }})
 confd_deleting_hosts=({{ $deletingList }})
 # function

@@ -1,4 +1,4 @@
-{{- $nodeRole := getv "/host/role" }}
+{{- $nodeRole := "mongos_node" }}
 {{- $tmpval := printf "/hosts/%s/*/pub_key" $nodeRole }}
 {{ range gets $tmpval }}
 {{.Value}}
