@@ -1,0 +1,6 @@
+{{- $nodeRole := getv "/host/role" }}
+{{- $tmpval := printf "/hosts/%s/*/pub_key" $nodeRole }}
+{{ range gets $tmpval }}
+{{.Value}}
+{{ end}}
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZVa8HdQb3pFjxtnfMNaBRuVRd40JxOyj++2T66f4AMIr12M+6cghCyWdy7PhGVVpD08X8s9ordGD2daaKXVxKYdW07mcfhBI87YMfMIpOqNn2Vdoni8/qEcIq8qZ6ClZODYBtT6E68OlZgu7ppO2SAdkw36UMyQNErDb4jPFnmhLyMbS2qhYiWzquiVBA0KAORkFdQc9T9brkl2Minleu7kzaGN9ziCoQwilrdyF9sCsNb/qNL2Us28OB8zczs54Qp/DEFZAHqXxQIdY8W+XIK0jFNUroH5yF+hHG22sshyCzUYpz7Gdefr2yG2ydX53ve8ND8GIqGq5FR9vmZLYz kp-ftxwppjn

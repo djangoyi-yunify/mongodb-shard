@@ -1,0 +1,101 @@
+# confd variables and funtions
+{{- $nodeRole := getv "/host/role" }}
+{{- $verticalScalingFlag := "" }}
+{{- $changeVxnetFlag := "" }}
+{{- $changeVxnetRoles := "" }}
+{{- $replList := "" }}
+{{- $roList := "" }}
+{{- $addingHostsFlag := "" }}
+{{- $addingList := "" }}
+{{- $deletingHostsFlag := "" }}
+{{- $deletingList := "" }}
+{{- $currentList := "" }}
+{{- $tmpval := "" }}
+
+{{- if len (ls "/vertical-scaling-roles") }}
+  {{- $verticalScalingFlag = "true" }}
+{{- else }}
+  {{- $verticalScalingFlag = "false" }}
+{{- end }}
+{{- if len (ls "/change-vxnet-audit") }}
+  {{- $changeVxnetFlag = "true" }}
+  {{- $changeVxnetRoles = getv "/change-vxnet-audit/roles" }}
+{{- else }}
+  {{- $changeVxnetFlag = "false" }}
+{{- end }}
+
+{{- range lsdir "/hosts/repl_node" -}}
+  {{- $ip := getv (printf "/hosts/repl_node/%s/ip" .) -}}
+  {{- $sid := getv (printf "/hosts/repl_node/%s/sid" .) -}}
+  {{- $node_id := getv (printf "/hosts/repl_node/%s/node_id" .) -}}
+  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+{{- end }}
+{{- $replList = $tmpval }}
+
+{{- $tmpval = "" }}
+{{- range lsdir "/hosts/ro_node" -}}
+  {{- $ip := getv (printf "/hosts/ro_node/%s/ip" .) -}}
+  {{- $sid := getv (printf "/hosts/ro_node/%s/sid" .) -}}
+  {{- $node_id := getv (printf "/hosts/ro_node/%s/node_id" .) -}}
+  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+{{- end }}
+{{- $roList = $tmpval }}
+
+{{- if eq $nodeRole "repl_node" }}
+  {{- $currentList = $replList }}
+{{- else }}
+  {{- $currentList = $roList }}
+{{- end }}
+
+{{- $tmpval = "" }}
+{{- if len (ls "/adding-hosts") }}
+  {{- $addingHostsFlag = "true" }}
+  {{- $tmp0 := printf "/adding-hosts/%s" $nodeRole }}
+  {{- range lsdir $tmp0 -}}
+    {{- $sid := getv (printf "/adding-hosts/%s/%s/sid" $nodeRole .) -}}
+    {{- $ip := getv (printf "/adding-hosts/%s/%s/ip" $nodeRole .) -}}
+    {{- $tmpval = printf "%s%s/%s " $tmpval $sid $ip }}
+  {{- end -}}
+  {{- $addingList = $tmpval }}
+{{- else }}
+  {{- $addingHostsFlag = "false" }}
+  {{- $addingList = "" }}
+{{- end }}
+
+{{- $tmpval = "" }}
+{{- if len (ls "/deleting-hosts") }}
+  {{- $deletingHostsFlag = "true" }}
+  {{- $tmp0 := printf "/deleting-hosts/%s" $nodeRole }}
+  {{- range lsdir $tmp0 -}}
+    {{- $sid := getv (printf "/deleting-hosts/%s/%s/sid" $nodeRole .) -}}
+    {{- $ip := getv (printf "/deleting-hosts/%s/%s/ip" $nodeRole .) -}}
+    {{- $tmpval = printf "%s%s/%s " $tmpval $sid $ip }}
+  {{- end -}}
+  {{- $deletingList = $tmpval }}
+{{- else }}
+  {{- $deletingHostsFlag = "false" }}
+  {{- $deletingList = "" }}
+{{- end }}
+# cluster
+confd_cluster_global_uuid={{ getv "/cluster/global_uuid" }}
+confd_cluster_id={{ getv "/cluster/cluster_id" }}
+# host
+confd_host_sid={{ getv "/host/sid" }}
+confd_host_ip={{ getv "/host/ip" }}
+confd_host_role={{ $nodeRole }}
+# env
+confd_env_conf_mongod_engine={{ getv "/env/conf.mongod.engine" }}
+confd_env_conf_mongod_port={{ getv "/env/conf.mongod.port" }}
+confd_env_db_userpass={{ getv "/env/db.userpass" }}
+confd_env_conf_mongod_replication_oplogSizeMB={{ getv "/env/conf.mongod.replication.oplogSizeMB" }}
+confd_env_conf_mongod_replication_enableMajorityReadConcern={{ getv "/env/conf.mongod.replication.enableMajorityReadConcern" }}
+# cluster hosts
+confd_repl_node_hosts=({{ $replList }})
+confd_ro_node_hosts=({{ $roList }})
+confd_cur_node_hosts=({{ $currentList }})
+confd_adding_hosts=({{ $addingList }})
+confd_deleting_hosts=({{ $deletingList }})
+# function
+getIp() {
+  echo $(echo $1 | cut -d'/' -f2)
+}

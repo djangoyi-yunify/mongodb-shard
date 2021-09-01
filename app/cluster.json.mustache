@@ -1,0 +1,159 @@
+{
+    "name": {{cluster.name}},
+    "description": {{cluster.description}},
+    "vxnet": {{cluster.vxnet}},
+    "advanced_actions": [
+        "scale_horizontal",
+        "change_vxnet"
+    ],
+    "nodes": [{
+        "role": "cs_node",
+        "container": {
+            "type":"lxc",
+            "prefer_type": "lxc",
+            "sriov_nic": true,
+            "zone": "pek3",
+            "image": "img-7r6n7szx"
+        },
+        "instance_class": {{cluster.cs_node.instance_class}},
+        "count": {{cluster.cs_node.count}},
+        "cpu": {{cluster.cs_node.cpu}},
+        "memory": {{cluster.cs_node.memory}},
+        "volume": {
+            "size": {{cluster.cs_node.volume_size}},
+            "mount_point": "/data",
+            "class": {{cluster.cs_node.volume_class}},
+            "filesystem": "ext4"
+        },
+        "passphraseless":"ssh-rsa",
+        "vertical_scaling_policy": "sequential",
+        "services": {
+            "init": {
+                "cmd": "appctl init",
+                "post_start_service": true
+            },
+            "start": {
+                "cmd": "appctl start",
+                "order": 2
+            },
+            "stop": {
+                "cmd": "appctl stop",
+                "order": 1
+            },
+            "get_nodes_order": {
+                "event": ["upgrade", "rollback", "scale_vertical", "stop"],
+                "cmd": "appctl getNodesOrder"
+            },
+            "scale_out": {
+                "nodes_to_execute_on": 1,
+                "cmd": "appctl scaleOut"
+            },
+            "scale_in": {
+                "nodes_to_execute_on": 1,
+                "cmd": "appctl scaleIn"
+            }
+        }
+    },{
+        "role": "shard_node",
+        "container": {
+            "type":"lxc",
+            "prefer_type": "lxc",
+            "sriov_nic": true,
+            "zone": "pek3",
+            "image": "img-7r6n7szx"
+        },
+        "instance_class": {{cluster.shard_node.instance_class}},
+        "count": {{cluster.shard_node.count}},
+        "replica": {{cluster.shard_node.replica}},
+        "cpu": {{cluster.shard_node.cpu}},
+        "memory": {{cluster.shard_node.memory}},
+        "volume": {
+            "size": {{cluster.shard_node.volume_size}},
+            "mount_point": "/data",
+            "class": {{cluster.shard_node.volume_class}},
+            "filesystem": "ext4"
+        },
+        "passphraseless":"ssh-rsa",
+        "vertical_scaling_policy": "sequential",
+        "services": {
+            "init": {
+                "cmd": "appctl init",
+                "post_start_service": true
+            },
+            "start": {
+                "cmd": "appctl start",
+                "order": 1
+            },
+            "stop": {
+                "cmd": "appctl stop",
+                "order": 2
+            },
+            "get_nodes_order": {
+                "event": ["upgrade", "rollback", "scale_vertical", "stop"],
+                "cmd": "appctl getNodesOrder"
+            },
+            "scale_out": {
+                "nodes_to_execute_on": 1,
+                "cmd": "appctl scaleOut"
+            },
+            "scale_in": {
+                "nodes_to_execute_on": 1,
+                "cmd": "appctl scaleIn"
+            }
+        }
+    },{
+        "role": "mongos_node",
+        "container": {
+            "type":"lxc",
+            "prefer_type": "lxc",
+            "sriov_nic": true,
+            "zone": "pek3",
+            "image": "img-7r6n7szx"
+        },
+        "instance_class": {{cluster.mongos_node.instance_class}},
+        "count": {{cluster.mongos_node.count}},
+        "cpu": {{cluster.mongos_node.cpu}},
+        "memory": {{cluster.mongos_node.memory}},
+        "volume": {
+            "size": {{cluster.mongos_node.volume_size}},
+            "mount_point": "/data",
+            "class": {{cluster.mongos_node.volume_class}},
+            "filesystem": "ext4"
+        },
+        "passphraseless":"ssh-rsa",
+        "vertical_scaling_policy": "sequential",
+        "services": {
+            "init": {
+                "cmd": "appctl init",
+                "post_start_service": true
+            },
+            "start": {
+                "cmd": "appctl start",
+                "order": 1
+            },
+            "stop": {
+                "cmd": "appctl stop",
+                "order": 2
+            },
+            "get_nodes_order": {
+                "event": ["upgrade", "rollback", "scale_vertical", "stop"],
+                "cmd": "appctl getNodesOrder"
+            },
+            "scale_out": {
+                "nodes_to_execute_on": 1,
+                "cmd": "appctl scaleOut"
+            },
+            "scale_in": {
+                "nodes_to_execute_on": 1,
+                "cmd": "appctl scaleIn"
+            }
+        }
+    }],
+    "env": {
+        "db.userpass": {{env.db.userpass}},
+        "conf.mongod.engine": {{env.conf.mongod.engine}},
+        "conf.mongod.port": {{env.conf.mongod.port}},
+        "conf.mongod.replication.oplogSizeMB": {{env.conf.mongod.replication.oplogSizeMB}},
+        "conf.mongod.replication.enableMajorityReadConcern": {{env.conf.mongod.replication.enableMajorityReadConcern}}
+    }
+}

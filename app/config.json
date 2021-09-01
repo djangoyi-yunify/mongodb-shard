@@ -1,0 +1,288 @@
+{
+    "type": "array",
+    "properties": [
+        {
+            "key": "cluster",
+            "description": "cluster properties",
+            "type": "array",
+            "properties": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "label": "Name",
+                    "description": "The name of the application",
+                    "default": "MongoDB Shard Cluster",
+                    "required": "no"
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "label": "Description",
+                    "description": "The description of the application",
+                    "default": "",
+                    "required": "no"
+                },
+                {
+                    "key": "vxnet",
+                    "label": "VxNet",
+                    "description": "The vxnet that the application will join",
+                    "type": "string",
+                    "default": "",
+                    "required": "yes"
+                },
+                {
+                    "key": "cs_node",
+                    "description": "Properties for config server node",
+                    "label": "Config Server Node",
+                    "type": "array",
+                    "properties": [
+                        {
+                            "key": "instance_class",
+                            "label": "Instance Class",
+                            "description": "The instance type for the config server node",
+                            "type": "integer",
+                            "default": 101,
+                            "range": [101, 202, 301],
+                            "required": "yes"
+                        },
+                        {
+                            "key": "cpu",
+                            "label": "CPU",
+                            "description": "CPUs of each node",
+                            "type": "integer",
+                            "range": [1, 2, 4],
+                            "default": 1,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "memory",
+                            "description": "Memory of each node",
+                            "label": "Memory",
+                            "type": "integer",
+                            "range": [2048, 4096, 8192],
+                            "default": 2048,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "volume_class",
+                            "label": "Volume Class",
+                            "description": "The volume type for each node",
+                            "type": "integer",
+                            "range": [0, 2, 3, 10],
+                            "default": 0,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "volume_size",
+                            "label": "Volume Size",
+                            "description": "The volume size for each instance",
+                            "type": "integer",
+                            "default": 50,
+                            "min": 50,
+                            "step": 50,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "count",
+                            "label": "Node Count",
+                            "description": "Number of nodes to be created",
+                            "type": "integer",
+                            "min": 3,
+                            "max": 3,
+                            "default": 3,
+                            "readonly": "yes",
+                            "required": "yes"
+                        }
+                    ]
+                },
+                {
+                    "key": "shard_node",
+                    "description": "Properties for shard node",
+                    "label": "Shard Node",
+                    "type": "array",
+                    "properties": [
+                        {
+                            "key": "instance_class",
+                            "label": "Instance Class",
+                            "description": "The instance type for the shard node",
+                            "type": "integer",
+                            "default": 101,
+                            "range": [101, 202, 301],
+                            "required": "yes"
+                        },
+                        {
+                            "key": "cpu",
+                            "label": "CPU",
+                            "description": "CPUs of each node",
+                            "type": "integer",
+                            "range": [1, 2, 4],
+                            "default": 1,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "memory",
+                            "description": "Memory of each node",
+                            "label": "Memory",
+                            "type": "integer",
+                            "range": [2048, 4096, 8192],
+                            "default": 2048,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "volume_class",
+                            "label": "Volume Class",
+                            "description": "The volume type for each node",
+                            "type": "integer",
+                            "range": [0, 2, 3, 10],
+                            "default": 0,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "volume_size",
+                            "label": "Volume Size",
+                            "description": "The volume size for each instance",
+                            "type": "integer",
+                            "default": 50,
+                            "min": 50,
+                            "step": 50,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "count",
+                            "label": "Node Count",
+                            "description": "Number of nodes to be created",
+                            "type": "integer",
+                            "min": 1,
+                            "max": 10,
+                            "default": 2,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "replica",
+                            "label": "Replica",
+                            "description": "The replica number of the node",
+                            "type": "integer",
+                            "default": 2,
+                            "readonly": "yes",
+                            "required": "yes"
+                        }
+                    ]
+                },
+                {
+                    "key": "mongos_node",
+                    "description": "Properties for mongos node",
+                    "label": "Mongos Node",
+                    "type": "array",
+                    "properties": [
+                        {
+                            "key": "instance_class",
+                            "label": "Instance Class",
+                            "description": "The instance type for the Mongos node",
+                            "type": "integer",
+                            "default": 101,
+                            "range": [101, 202, 301],
+                            "required": "yes"
+                        },
+                        {
+                            "key": "cpu",
+                            "label": "CPU",
+                            "description": "CPUs of each node",
+                            "type": "integer",
+                            "range": [1, 2, 4],
+                            "default": 1,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "memory",
+                            "description": "Memory of each node",
+                            "label": "Memory",
+                            "type": "integer",
+                            "range": [2048, 4096, 8192],
+                            "default": 2048,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "volume_class",
+                            "label": "Volume Class",
+                            "description": "The volume type for each node",
+                            "type": "integer",
+                            "range": [0, 2, 3, 10],
+                            "default": 0,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "volume_size",
+                            "label": "Volume Size",
+                            "description": "The volume size for each instance",
+                            "type": "integer",
+                            "default": 50,
+                            "min": 50,
+                            "step": 50,
+                            "required": "yes"
+                        },
+                        {
+                            "key": "count",
+                            "label": "Node Count",
+                            "description": "Number of nodes to be created",
+                            "type": "integer",
+                            "min": 1,
+                            "max": 10,
+                            "default": 2,
+                            "required": "yes"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "env",
+            "description": "Application configuration properties",
+            "type": "array",
+            "properties": [
+                {
+                    "key": "db.userpass",
+                    "label": "DB User Password",
+                    "description": "The passowrd of user 'root'",
+                    "type": "password",
+                    "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}",
+                    "default": "Passw0rd",
+                    "required": "no"
+                },
+                {
+                    "key": "conf.mongod.engine",
+                    "label": "Storage engine",
+                    "description": "Storage engine",
+                    "type": "string",
+                    "default": "wiredTiger",
+                    "range": ["wiredTiger"],
+                    "changeable": false,
+                    "required": "yes"
+                },
+                {
+                    "key": "conf.mongod.port",
+                    "label": "Listening port",
+                    "description": "Listening port",
+                    "type": "integer",
+                    "default": 27017,
+                    "required": "yes"
+                },
+                {
+                    "key": "conf.mongod.replication.oplogSizeMB",
+                    "label": "replication.oplogSizeMB",
+                    "description": "The maximum size in megabytes for the replication operation log",
+                    "type": "integer",
+                    "default": 2048,
+                    "required": "yes"
+                },
+                {
+                    "key": "conf.mongod.replication.enableMajorityReadConcern",
+                    "label": "replication.enableMajorityReadConcern",
+                    "description": "oplog size",
+                    "type": "boolean",
+                    "default": true,
+                    "required": "yes"
+                }
+            ]
+        }
+    ]
+}
