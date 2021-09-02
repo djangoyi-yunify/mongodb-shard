@@ -1,8 +1,7 @@
-if [ ! -d "/data/appctl" ]; then mkdir -p /data/appctl/data; fi
+if [ ! -d "/data/appctl/data" ]; then mkdir -p /data/appctl/data; fi
 if [ ! -d "/data/mongodb-conf" ]; then mkdir -p /data/mongodb-conf; fi
+
 flush > /data/appctl/data/hosts.info.new << HOSTS_INFO_NEW
-PORT=$confd_env_conf_mongod_port
-NODE_LIST=$(echo ${confd_repl_node_hosts[@]})
-NODE_RO_LIST=$(echo ${confd_ro_node_hosts[@]})
-NODE_CUR_LIST=$(echo ${confd_cur_node_hosts[@]})
+PORT=$host_port
+NODE_LIST=($(echo ${host_node_list[@]}))
 HOSTS_INFO_NEW

@@ -13,7 +13,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-7r6n7szx"
+            "image": "img-vg23yhv0"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -38,7 +38,7 @@
             },
             "stop": {
                 "cmd": "appctl stop",
-                "order": 1
+                "order": 2
             },
             "get_nodes_order": {
                 "event": ["upgrade", "rollback", "scale_vertical", "stop"],
@@ -60,7 +60,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-7r6n7szx"
+            "image": "img-vg23yhv0"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -86,7 +86,7 @@
             },
             "stop": {
                 "cmd": "appctl stop",
-                "order": 2
+                "order": 3
             },
             "get_nodes_order": {
                 "event": ["upgrade", "rollback", "scale_vertical", "stop"],
@@ -108,7 +108,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-7r6n7szx"
+            "image": "img-vg23yhv0"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -129,11 +129,11 @@
             },
             "start": {
                 "cmd": "appctl start",
-                "order": 1
+                "order": 3
             },
             "stop": {
                 "cmd": "appctl stop",
-                "order": 2
+                "order": 1
             },
             "get_nodes_order": {
                 "event": ["upgrade", "rollback", "scale_vertical", "stop"],

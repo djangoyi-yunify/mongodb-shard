@@ -1,5 +1,6 @@
 # confd variables and funtions
 {{- $nodeRole := getv "/host/role" }}
+{{- $nodeGid := getv "/host/gid" }}
 {{- $verticalScalingFlag := "" }}
 {{- $changeVxnetFlag := "" }}
 {{- $changeVxnetRoles := "" }}
@@ -61,6 +62,7 @@
   {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
 {{- end }}
 {{- $cs_node_list = $tmpval }}
+cs_rsname=repl_cs
 
 # mongos_node
 {{- $mongos_node_list := "" }}
@@ -76,9 +78,8 @@
 # shard_node
 {{- $group_list := "" }}
 {{- $tmpval = "" }}
-{{- range lsdir "/hosts/shard_node" -}}
-  {{- $gid := getv (printf "/hosts/shard_node/%s/gid" .) -}}
-  {{- $tmpval = printf "%s%s " $tmpval $gid }}
+{{- range getvs "/hosts/shard_node/*/gid" -}}
+  {{- $tmpval = printf "%s%s " $tmpval . }}
 {{- end }}
 {{- $group_list = $tmpval }}
 shard_group_list=({{ $group_list }})
@@ -91,34 +92,37 @@ shard_group_list=({{ $group_list }})
   {{- $tmpval = printf "%s%s/%s/%s/%s " $tmpval $sid $ip $node_id $gid }}
   {{- range lsdir "/hosts/shard_node-replica" -}}
     {{- $gid2 := getv (printf "/hosts/shard_node-replica/%s/gid" .) -}}
-    {{- $ip2 := getv (printf "/hosts/shard_node-replica/%s/ip" .) -}}
-    {{- $sid2 := getv (printf "/hosts/shard_node-replica/%s/sid" .) -}}
-    {{- $node_id2 := getv (printf "/hosts/shard_node-replica/%s/node_id" .) -}}
-    {{- $tmpval = printf "%s%s/%s/%s/%s " $tmpval $sid2 $ip2 $node_id2 $gid2 }}
+    {{- if eq $gid2 $gid }}
+      {{- $ip2 := getv (printf "/hosts/shard_node-replica/%s/ip" .) -}}
+      {{- $sid2 := getv (printf "/hosts/shard_node-replica/%s/sid" .) -}}
+      {{- $node_id2 := getv (printf "/hosts/shard_node-replica/%s/node_id" .) -}}
+      {{- $tmpval = printf "%s%s/%s/%s/%s " $tmpval $sid2 $ip2 $node_id2 $gid2 }}
+    {{- end }}
   {{- end }}
 shard_{{ $gid }}_list=({{ $tmpval}})
 encrypted=$(echo -n {{ $node_id }} | sha256sum | base64)
-shard_{{ $gid }}_rsname=${encrypted:0:16}
+shard_{{ $gid }}_rsname=repl_shard_${encrypted:0:8}
   {{- $tmpval = "" }}
 {{- end }}
 
 # cluster
-confd_cluster_global_uuid={{ getv "/cluster/global_uuid" }}
-confd_cluster_id={{ getv "/cluster/cluster_id" }}
+cluster_global_uuid={{ getv "/cluster/global_uuid" }}
+cluster_id={{ getv "/cluster/cluster_id" }}
+
 # host
-confd_host_sid={{ getv "/host/sid" }}
-confd_host_ip={{ getv "/host/ip" }}
-confd_host_role={{ $nodeRole }}
-# env
-confd_env_conf_mongod_engine={{ getv "/env/conf.mongod.engine" }}
-confd_env_conf_mongod_port={{ getv "/env/conf.mongod.port" }}
-confd_env_db_userpass={{ getv "/env/db.userpass" }}
-confd_env_conf_mongod_replication_oplogSizeMB={{ getv "/env/conf.mongod.replication.oplogSizeMB" }}
-confd_env_conf_mongod_replication_enableMajorityReadConcern={{ getv "/env/conf.mongod.replication.enableMajorityReadConcern" }}
-# cluster hosts
-confd_adding_hosts=({{ $addingList }})
-confd_deleting_hosts=({{ $deletingList }})
-# function
-getIp() {
-  echo $(echo $1 | cut -d'/' -f2)
-}
+host_gid={{ $nodeGid }}
+{{- if eq $nodeRole "cs_node" }}
+host_port={{ getv "/env/cs_node.conf.net.port" }}
+host_service_name=mongod
+host_repl_name=$cs_rsname
+host_node_list=({{ $cs_node_list }})
+{{- else if eq $nodeRole "mongos_node" }}
+host_port={{ getv "/env/mongos_node.conf.net.port" }}
+host_service_name=mongos
+host_node_list=({{ $mongos_node_list }})
+{{- else }}
+host_port={{ getv "/env/shard_node.conf.net.port" }}
+host_service_name=mongod
+host_repl_name=$(eval echo \$shard_${host_gid}_rsname)
+host_node_list=$(eval echo \$\{shard_${host_gid}_list[@]\})
+{{- end }}

@@ -1,0 +1,9 @@
+flush > /data/appctl/data/conf.info.new << CONF_INFO_NEW
+{{- if ne $nodeRole "mongos_node" }}
+replication_replSetName=$host_repl_name
+{{- end }}
+storage_engine={{ getv "/env/conf.storage.engine" }}
+{{- range gets (printf "/env/%s.*" $nodeRole) }}
+{{ replace (replace (base .Key) "." "_" -1) (printf "%s_conf_" $nodeRole) "" -1 }}={{ .Value }}
+{{- end }}
+CONF_INFO_NEW
