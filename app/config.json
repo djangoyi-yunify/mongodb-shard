@@ -267,7 +267,7 @@
                         "label": "net.port",
                         "description": "net.port",
                         "type": "integer",
-                        "default": 27019,
+                        "default": 27018,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
@@ -287,7 +287,7 @@
                         "label": "net.port",
                         "description": "net.port",
                         "type": "integer",
-                        "default": 27018,
+                        "default": 27019,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
@@ -321,7 +321,7 @@
                         "label": "net.port",
                         "description": "net.port",
                         "type": "integer",
-                        "default": 27017,
+                        "default": 27018,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",

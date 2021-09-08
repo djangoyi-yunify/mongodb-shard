@@ -8,7 +8,7 @@ Wants=network-online.target
 User=mongod
 Group=svc
 Environment="OPTIONS=-f /data/mongodb-conf/mongo.conf"
-ExecStart=/opt/mongodb/current/bin/mongod $OPTIONS
+ExecStart=/opt/mongodb/current/bin/mongos $OPTIONS
 PermissionsStartOnly=true
 Type=simple
 # file size

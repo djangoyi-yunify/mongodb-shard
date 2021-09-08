@@ -1,9 +1,30 @@
+getIp() {
+  echo $(echo $1 | cut -d'/' -f2)
+}
+
+getShardingConfigDBString() {
+  local tmpstr=''
+  local csport={{ $csPort }}
+  local cfgSvrList=({{ $cs_node_list }})
+  local cnt=${#cfgSvrList[@]}
+  for((i=0;i<$cnt;i++)); do
+    tmpstr="${tmpstr}$(getIp ${cfgSvrList[i]}):$csport,"
+  done
+  tmpstr="$cs_rsname/${tmpstr:0:-1}"
+  echo $tmpstr
+}
 flush > /data/appctl/data/conf.info.new << CONF_INFO_NEW
 {{- if ne $nodeRole "mongos_node" }}
 replication_replSetName=$host_repl_name
+{{- else }}
+sharding_configDB=$(getShardingConfigDBString)
 {{- end }}
 storage_engine={{ getv "/env/conf.storage.engine" }}
-{{- range gets (printf "/env/%s.*" $nodeRole) }}
-{{ replace (replace (base .Key) "." "_" -1) (printf "%s_conf_" $nodeRole) "" -1 }}={{ .Value }}
+{{- $tmpval = $nodeRole }}
+{{- if eq $tmpval "shard_node-replica"}}
+  {{- $tmpval = "shard_node" }}
+{{- end }}
+{{- range gets (printf "/env/%s.*" $tmpval) }}
+{{ replace (replace (base .Key) "." "_" -1) (printf "%s_conf_" $tmpval) "" -1 }}={{ .Value }}
 {{- end }}
 CONF_INFO_NEW
