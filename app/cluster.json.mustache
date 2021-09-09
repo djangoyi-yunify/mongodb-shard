@@ -13,7 +13,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-kvjorngl"
+            "image": "img-8rvr8duo"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -30,7 +30,8 @@
         "services": {
             "init": {
                 "cmd": "appctl init",
-                "post_start_service": true
+                "post_start_service": true,
+                "order": 2
             },
             "start": {
                 "cmd": "appctl start",
@@ -60,7 +61,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-kvjorngl"
+            "image": "img-8rvr8duo"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -78,7 +79,8 @@
         "services": {
             "init": {
                 "cmd": "appctl init",
-                "post_start_service": true
+                "post_start_service": true,
+                "order": 1
             },
             "start": {
                 "cmd": "appctl start",
@@ -108,7 +110,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-kvjorngl"
+            "image": "img-8rvr8duo"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -125,7 +127,8 @@
         "services": {
             "init": {
                 "cmd": "appctl init",
-                "post_start_service": true
+                "post_start_service": true,
+                "order": 3
             },
             "start": {
                 "cmd": "appctl start",
