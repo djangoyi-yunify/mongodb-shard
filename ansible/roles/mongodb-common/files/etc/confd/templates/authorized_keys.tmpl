@@ -1,6 +1,22 @@
-{{- $nodeRole := "mongos_node" }}
-{{- $tmpval := printf "/hosts/%s/*/pub_key" $nodeRole }}
-{{ range gets $tmpval }}
-{{.Value}}
-{{ end}}
+{{- $nodeRole := getv "/host/role" }}
+{{- $nodeGid := getv "/host/gid" }}
+{{- $tmpval := "" }}
+{{- if eq $nodeRole "cs_node" }}
+  {{- range gets "/hosts/cs_node/*/pub_key" }}
+{{ .Value }}
+  {{- end }}
+{{- end }}
+{{- if or (eq $nodeRole "shard_node") (eq $nodeRole "shard_node-replica") }}
+  {{- range $tmpval = lsdir "/hosts/shard_node/" }}
+    {{- if eq (getv (printf "/hosts/shard_node/%s/gid" $tmpval)) $nodeGid }}
+{{ getv (printf "/hosts/shard_node/%s/pub_key" $tmpval) }}
+    {{- end }}
+  {{- end }}
+  {{- range $tmpval = lsdir "/hosts/shard_node-replica/" }}
+    {{- if eq (getv (printf "/hosts/shard_node-replica/%s/gid" $tmpval)) $nodeGid }}
+{{ getv (printf "/hosts/shard_node-replica/%s/pub_key" $tmpval) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZVa8HdQb3pFjxtnfMNaBRuVRd40JxOyj++2T66f4AMIr12M+6cghCyWdy7PhGVVpD08X8s9ordGD2daaKXVxKYdW07mcfhBI87YMfMIpOqNn2Vdoni8/qEcIq8qZ6ClZODYBtT6E68OlZgu7ppO2SAdkw36UMyQNErDb4jPFnmhLyMbS2qhYiWzquiVBA0KAORkFdQc9T9brkl2Minleu7kzaGN9ziCoQwilrdyF9sCsNb/qNL2Us28OB8zczs54Qp/DEFZAHqXxQIdY8W+XIK0jFNUroH5yF+hHG22sshyCzUYpz7Gdefr2yG2ydX53ve8ND8GIqGq5FR9vmZLYz kp-ftxwppjn
