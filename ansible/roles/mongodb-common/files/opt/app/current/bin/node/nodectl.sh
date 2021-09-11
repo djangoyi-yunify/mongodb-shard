@@ -233,6 +233,37 @@ init() {
   doWhenMongosInit
 }
 
+isMeMaster() {
+  msIsHostMaster "$MY_IP:$MY_PORT" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
+doWhenMongosStop() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  _stop
+}
+
+msCheckReplSingleMaster() {
+  local allcnt=$1
+  shift
+  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status())" $@ | jq .members[].stateStr)
+  local pcnt=$(echo "$tmpstr" | grep SECONDARY | wc -l)
+  local scnt=$(echo "$tmpstr" | grep "not reachable/healthy" | wc -l)
+  test $pcnt -eq 1
+  test $((pcnt+scnt)) -eq $allcnt
+  return 0
+}
+
+doWhenReplStop() {
+  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+  if isMeMaster; then retry 60 3 0 msCheckReplSingleMaster; fi
+  _stop
+}
+
+stop() {
+  doWhenMongosStop
+  doWhenReplStop
+}
+
 createMongoConf() {
   local replication_replSetName
   local storage_engine
