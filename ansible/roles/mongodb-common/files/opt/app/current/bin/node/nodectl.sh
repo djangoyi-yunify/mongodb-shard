@@ -255,13 +255,55 @@ msCheckReplSingleMaster() {
 
 doWhenReplStop() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  if isMeMaster; then retry 60 3 0 msCheckReplSingleMaster; fi
+  if isMeMaster; then log "stop primary node"; retry 60 3 0 msCheckReplSingleMaster; fi
   _stop
+  log "node stopped"
 }
 
 stop() {
   doWhenMongosStop
   doWhenReplStop
+}
+
+getNodesOrder() {
+  if [ "$MY_ROLE" = "mongos_node" ]; then return 0; fi
+  local tmpstr
+  local cnt
+  local subcnt
+  local tmplist
+  local tmpip
+  local curmaster
+  if [ "$MY_ROLE" = "cs_node" ]; then
+    tmplist=(${NODE_LIST[@]})
+    cnt=${#tmplist[@]}
+    for((i=0;i<$cnt;i++)); do
+      tmpip=$(getIp ${tmplist[i]})
+      if msIsHostMaster "$tmpip:$MY_PORT" -H $tmpip -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+        curmaster=$(getNodeId ${tmplist[i]})
+        continue
+      fi
+      tmpstr="$tmpstr,$(getNodeId ${tmplist[i]})"
+    done
+    tmpstr="${tmpstr:1},$curmaster"
+  else
+    cnt=${#INFO_SHARD_GROUP_LIST[@]}
+    for((i=1;i<=$cnt;i++)); do
+      tmplist=($(eval echo \${INFO_SHARD_${i}_LIST[@]}))
+      subcnt=${#tmplist[@]}
+      for((j=0;j<$subcnt;j++)); do
+        tmpip=$(getIp ${tmplist[j]})
+        if msIsHostMaster "$tmpip:$INFO_SHARD_PORT" -H $tmpip -P $INFO_SHARD_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+          curmaster=$(getNodeId ${tmplist[j]})
+          continue
+        fi
+        tmpstr="$tmpstr,$(getNodeId ${tmplist[j]})"
+      done
+      tmpstr="$tmpstr,$curmaster"
+    done
+    tmpstr=${tmpstr:1}
+  fi
+  log "$tmpstr"
+  echo $tmpstr
 }
 
 createMongoConf() {
