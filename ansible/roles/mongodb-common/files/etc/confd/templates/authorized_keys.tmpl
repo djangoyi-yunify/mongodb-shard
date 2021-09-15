@@ -6,6 +6,11 @@
 {{ .Value }}
   {{- end }}
 {{- end }}
+{{- if eq $nodeRole "mongos_node" }}
+  {{- range gets "/hosts/mongos_node/*/pub_key" }}
+{{ .Value }}
+  {{- end }}
+{{- end }}
 {{- if or (eq $nodeRole "shard_node") (eq $nodeRole "shard_node-replica") }}
   {{- range $tmpval = lsdir "/hosts/shard_node/" }}
     {{- if eq (getv (printf "/hosts/shard_node/%s/gid" $tmpval)) $nodeGid }}

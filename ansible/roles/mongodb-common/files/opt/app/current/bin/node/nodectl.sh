@@ -1,6 +1,6 @@
 # sourced by /opt/app/current/bin/ctl.sh
 # error code
-ERR_HOSTS_INFO_FILE=201
+ERR_BALANCER_STOP=201
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -78,6 +78,20 @@ getInitNodeList() {
   fi
 }
 
+MONGOS_BIN=/opt/mongodb/current/bin/mongos
+shellStartMongosForAdmin() {
+  runuser mongod -g svc -s "/bin/bash" -c "$MONGOS_BIN -f $MONGODB_CONF_PATH/mongo-admin.conf"
+}
+
+msStopMongosForAdmin() {
+  local jsstr=$(cat <<EOF
+db = db.getSiblingDB('admin')
+db.shutdownServer()
+EOF
+  )
+  runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
 # msInitRepl
 # init replicaset
 #  first node: priority 2
@@ -145,8 +159,16 @@ msIsHostMaster() {
   local hostinfo=$1
   shift
   local tmpstr=$(runMongoCmd "JSON.stringify(rs.status().members)" $@)
-  local pname=$(echo $tmpstr | jq '.[] | select(.stateStr=="PRIMARY") | .name' | sed s/\"//g)
-  test "$pname" = "$hostinfo"
+  local state=$(echo $tmpstr | jq '.[] | select(.name=="'$hostinfo'") | .stateStr' | sed s/\"//g)
+  test "$state" = "PRIMARY"
+}
+
+msIsHostSecondary() {
+  local hostinfo=$1
+  shift
+  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status().members)" $@)
+  local state=$(echo $tmpstr | jq '.[] | select(.name=="'$hostinfo'") | .stateStr' | sed s/\"//g)
+  test "$state" = "SECONDARY"
 }
 
 msIsHostHidden() {
@@ -237,25 +259,75 @@ isMeMaster() {
   msIsHostMaster "$MY_IP:$MY_PORT" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
 }
 
+isMeNotMaster() {
+  ! msIsHostMaster "$MY_IP:$MY_PORT" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
+msIsBalancerNotRunning() {
+  local jsstr=$(cat <<EOF
+if (sh.isBalancerRunning()) {
+  quit(1)
+}
+else {
+  quit(0)
+}
+EOF
+  )
+
+  runMongoCmd "$jsstr" $@
+}
+
+msIsBalancerOkForStop() {
+  local jsstr=$(cat <<EOF
+if (!sh.getBalancerState() && !sh.isBalancerRunning()) {
+  quit(0)
+}
+else {
+  quit(1)
+}
+EOF
+  )
+
+  runMongoCmd "$jsstr" $@
+}
+
+msDisableBalancer() {
+  local tmpstr=$(runMongoCmd "JSON.stringify(sh.stopBalancer())" $@)
+  local res=$(echo "$tmpstr" | jq '.ok')
+  test $res = 1
+}
+
 doWhenMongosStop() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
   _stop
-}
+  if [ $VERTICAL_SCALING_FLAG = "true" ] || [ $DELETING_HOSTS_FLAG = "true" ]; then log "No need to stop balancer"; return 0; fi
 
-msCheckReplSingleMaster() {
-  local allcnt=$1
-  shift
-  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status())" $@ | jq .members[].stateStr)
-  local pcnt=$(echo "$tmpstr" | grep SECONDARY | wc -l)
-  local scnt=$(echo "$tmpstr" | grep "not reachable/healthy" | wc -l)
-  test $pcnt -eq 1
-  test $((pcnt+scnt)) -eq $allcnt
-  return 0
+  local slist=(${NODE_LIST[@]})
+  local cnt=${#slist[@]}
+  if [ $(getSid ${slist[0]}) = $MY_SID ]; then return 0; fi
+  # last node check balancer's status
+  shellStartMongosForAdmin
+  retry 60 3 0 msGetHostDbVersion -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  # wait for 30 minutes for balancer to be ready
+  if retry 1800 3 0 msDisableBalancer -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+    log "disable balancer: succeeded"
+    retry 1800 3 0 msIsBalancerOkForStop -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+    msStopMongosForAdmin
+  else
+    log "disable balancer: failed"
+    msStopMongosForAdmin
+    
+    return $ERR_BALANCER_STOP
+  fi
 }
 
 doWhenReplStop() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  if isMeMaster; then log "stop primary node"; retry 60 3 0 msCheckReplSingleMaster; fi
+  if isMeMaster; then
+    runMongoCmd "rs.stepDown()" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE) || :
+  fi
+  # wait for 30 minutes
+  retry 1800 3 0 isMeNotMaster
   _stop
   log "node stopped"
 }
@@ -266,14 +338,20 @@ stop() {
 }
 
 getNodesOrder() {
-  if [ "$MY_ROLE" = "mongos_node" ]; then return 0; fi
   local tmpstr
   local cnt
   local subcnt
   local tmplist
   local tmpip
   local curmaster
-  if [ "$MY_ROLE" = "cs_node" ]; then
+  if [ "$MY_ROLE" = "mongos_node" ]; then
+    tmplist=($(sortHostList ${NODE_LIST[@]}))
+    cnt=${#tmplist[@]}
+    for((i=0;i<$cnt;i++)); do
+      tmpstr="$tmpstr,$(getNodeId ${tmplist[i]})"
+    done
+    tmpstr=${tmpstr:1}
+  elif [ "$MY_ROLE" = "cs_node" ]; then
     tmplist=(${NODE_LIST[@]})
     cnt=${#tmplist[@]}
     for((i=0;i<$cnt;i++)); do
@@ -336,6 +414,22 @@ setParameter:
 sharding:
   configDB: $sharding_configDB
 MONGO_CONF
+
+    cat > $MONGODB_CONF_PATH/mongo-admin.conf <<MONGO_CONF
+systemLog:
+  destination: syslog
+net:
+  port: $NET_MAINTAIN_PORT
+  bindIp: 0.0.0.0
+security:
+  keyFile: $MONGODB_CONF_PATH/repl.key
+setParameter:
+  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
+sharding:
+  configDB: $sharding_configDB
+processManagement:
+  fork: true
+MONGO_CONF
   else
     net_port=$(getItemFromFile net_port $CONF_INFO_FILE)
     setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
@@ -363,6 +457,7 @@ security:
   authorization: enabled
 storage:
   dbPath: $MONGODB_DATA_PATH
+  directoryPerDB: true
   journal:
     enabled: true
   engine: $storage_engine
@@ -382,10 +477,13 @@ MONGO_CONF
 systemLog:
   destination: syslog
 net:
-  port: $CONF_MAINTAIN_NET_PORT
+  port: $NET_MAINTAIN_PORT
   bindIp: 0.0.0.0
 storage:
   dbPath: $MONGODB_DATA_PATH
+  directoryPerDB: true
+  journal:
+    enabled: true
   engine: $storage_engine
 processManagement:
   fork: true
@@ -420,4 +518,6 @@ checkConfdChange() {
     log "cluster pre-init"
     clusterPreInit
   fi
+
+  log "other stuff"
 }

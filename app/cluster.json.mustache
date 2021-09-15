@@ -13,7 +13,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-57tvkijr"
+            "image": "img-db97kmgv"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -31,15 +31,16 @@
             "init": {
                 "cmd": "appctl init",
                 "post_start_service": true,
-                "order": 2
+                "order": 1
             },
             "start": {
                 "cmd": "appctl start",
-                "order": 2
+                "order": 1
             },
             "stop": {
                 "cmd": "appctl stop",
-                "order": 2
+                "order": 3,
+                "timeout": 1800
             },
             "get_nodes_order": {
                 "event": ["upgrade", "rollback", "scale_vertical"],
@@ -61,7 +62,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-57tvkijr"
+            "image": "img-db97kmgv"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -80,15 +81,16 @@
             "init": {
                 "cmd": "appctl init",
                 "post_start_service": true,
-                "order": 1
+                "order": 2
             },
             "start": {
                 "cmd": "appctl start",
-                "order": 1
+                "order": 2
             },
             "stop": {
                 "cmd": "appctl stop",
-                "order": 3
+                "order": 2,
+                "timeout": 1800
             },
             "get_nodes_order": {
                 "event": ["upgrade", "rollback", "scale_vertical"],
@@ -110,7 +112,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-57tvkijr"
+            "image": "img-db97kmgv"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -136,7 +138,8 @@
             },
             "stop": {
                 "cmd": "appctl stop",
-                "order": 1
+                "order": 1,
+                "timeout": 1800
             },
             "get_nodes_order": {
                 "event": ["upgrade", "rollback", "scale_vertical"],
