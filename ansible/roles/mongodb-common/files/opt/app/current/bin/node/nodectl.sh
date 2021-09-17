@@ -1,6 +1,7 @@
 # sourced by /opt/app/current/bin/ctl.sh
 # error code
 ERR_BALANCER_STOP=201
+ERR_CHGVXNET_PRECHECK=202
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -543,6 +544,12 @@ clusterPreInit() {
   touch $MONGODB_CONF_PATH/mongo.conf
   chown mongod:svc $MONGODB_CONF_PATH/mongo.conf
   createMongoConf
+}
+
+changeVxnetPreCheck() {
+  local wantStr=$(echo "cs_node,mongos_node,shard_node,shard_node-replica" | sed 's/,/\n/g' | sort)
+  local gotStr=$(echo $CHANGE_VXNET_ROLES | sed 's/,/\n/g' | sort)
+  if [ ! "$gotStr" = "$wantStr" ]; then return $ERR_CHGVXNET_PRECHECK; fi
 }
 
 checkConfdChange() {

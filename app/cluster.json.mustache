@@ -13,7 +13,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-72mfgnl8"
+            "image": "img-kknju6m6"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -53,6 +53,9 @@
             "scale_in": {
                 "nodes_to_execute_on": 1,
                 "cmd": "appctl scaleIn"
+            },
+            "change_vxnet": {
+                "pre_check": "appctl changeVxnetPreCheck"
             }
         }
     },{
@@ -62,7 +65,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-72mfgnl8"
+            "image": "img-kknju6m6"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -103,6 +106,9 @@
             "scale_in": {
                 "nodes_to_execute_on": 1,
                 "cmd": "appctl scaleIn"
+            },
+            "change_vxnet": {
+                "pre_check": "appctl changeVxnetPreCheck"
             }
         }
     },{
@@ -112,7 +118,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-72mfgnl8"
+            "image": "img-kknju6m6"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -152,6 +158,9 @@
             "scale_in": {
                 "nodes_to_execute_on": 1,
                 "cmd": "appctl scaleIn"
+            },
+            "change_vxnet": {
+                "pre_check": "appctl changeVxnetPreCheck"
             }
         }
     }],

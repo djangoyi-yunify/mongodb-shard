@@ -1,6 +1,7 @@
 # confd variables and funtions
 {{- $nodeRole := getv "/host/role" }}
 {{- $nodeGid := getv "/host/gid" }}
+{{- $nodeIp := getv "/host/ip" }}
 {{- $csPort := getv "/env/cs_node.conf.net.port" }}
 {{- $shardPort := getv "/env/shard_node.conf.net.port" }}
 {{- $verticalScalingFlag := "" }}
