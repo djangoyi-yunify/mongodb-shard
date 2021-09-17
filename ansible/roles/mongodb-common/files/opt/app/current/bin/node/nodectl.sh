@@ -10,6 +10,7 @@ DB_QC_CLUSTER_PASS_FILE=/data/appctl/data/qc_cluster_pass
 DB_QC_LOCAL_PASS_FILE=/data/appctl/data/qc_local_pass
 HOSTS_INFO_FILE=/data/appctl/data/hosts.info
 CONF_INFO_FILE=/data/appctl/data/conf.info
+NODE_FIRST_CREATE_FLAG_FILE=/data/appctl/data/node.first.create.flag
 
 # runMongoCmd
 # desc run mongo shell
@@ -56,9 +57,38 @@ getItemFromFile() {
   echo "$res"
 }
 
+isNodeFirstCreate() {
+  test -f $NODE_FIRST_CREATE_FLAG_FILE
+}
+
+clearNodeFirstCreateFlag() {
+  if [ -f $NODE_FIRST_CREATE_FLAG_FILE ]; then rm -f $NODE_FIRST_CREATE_FLAG_FILE; fi
+}
+
+msEnableBalancer() {
+  if runMongoCmd "sh.setBalancerState(true)" $@; then
+    log "enable balancer: succeeded"
+  else
+    log "enable balancer: failed"
+  fi
+}
+
+doWhenMongosPostStart() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  if isNodeFirstCreate || [ $ADDING_HOSTS_FLAG = true ] || [ $VERTICAL_SCALING_FLAG = true ]; then return 0; fi
+  
+  local slist=(${NODE_LIST[@]})
+  local cnt=${#slist[@]}
+  if [ $(getSid ${slist[0]}) = $MY_SID ]; then return 0; fi
+  # re-enable balancer
+  retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  msEnableBalancer -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
 start() {
   _start
-  log "service started"
+  doWhenMongosPostStart
+  clearNodeFirstCreateFlag
 }
 
 # sortHostList
@@ -495,6 +525,8 @@ clusterPreInit() {
   # folder
   mkdir -p $MONGODB_DATA_PATH $MONGODB_LOG_PATH $MONGODB_CONF_PATH
   chown -R mongod:svc $MONGODB_DATA_PATH $MONGODB_LOG_PATH $MONGODB_CONF_PATH
+  # first create flag
+  touch $NODE_FIRST_CREATE_FLAG_FILE
   # repl.key
   echo "$GLOBAL_UUID" | base64 > "$MONGODB_CONF_PATH/repl.key"
   chown mongod:svc $MONGODB_CONF_PATH/repl.key
