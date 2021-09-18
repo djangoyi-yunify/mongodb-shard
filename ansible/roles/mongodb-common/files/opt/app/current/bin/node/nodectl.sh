@@ -74,7 +74,7 @@ msEnableBalancer() {
   fi
 }
 
-doWhenMongosPostStart() {
+doWhenMongosPreStart() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
   if isNodeFirstCreate || [ $ADDING_HOSTS_FLAG = true ] || [ $VERTICAL_SCALING_FLAG = true ]; then return 0; fi
   
@@ -82,13 +82,20 @@ doWhenMongosPostStart() {
   local cnt=${#slist[@]}
   if [ $(getSid ${slist[0]}) = $MY_SID ]; then return 0; fi
   # re-enable balancer
-  retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
-  msEnableBalancer -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  shellStartMongosForAdmin
+  retry 60 3 0 msGetHostDbVersion -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  msEnableBalancer -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  msStopMongosForAdmin
+}
+
+doWhenReplPreStart() {
+  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
 }
 
 start() {
+  doWhenMongosPreStart
+  doWhenReplPreStart
   _start
-  doWhenMongosPostStart
   clearNodeFirstCreateFlag
 }
 
