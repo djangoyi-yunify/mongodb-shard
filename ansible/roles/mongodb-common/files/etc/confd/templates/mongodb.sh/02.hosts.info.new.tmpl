@@ -3,5 +3,14 @@ if [ ! -d "/data/mongodb-conf" ]; then mkdir -p /data/mongodb-conf; fi
 
 flush > /data/appctl/data/hosts.info.new << HOSTS_INFO_NEW
 PORT=$host_port
-NODE_LIST=($(echo ${host_node_list[@]}))
+NODE_LIST=$(echo ${host_node_list[@]})
+{{- if ne $nodeRole "mongos_node" }}
+  {{- if eq $nodeRole "cs_node" }}
+EXT_PORT={{ $shardPort }}
+EXT_LIST=$(echo ${shard_all_list[@]})
+  {{- else }}
+EXT_PORT={{ $csPort }}
+EXT_LIST={{ $cs_node_list }}
+  {{- end }}
+{{- end }}
 HOSTS_INFO_NEW

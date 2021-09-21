@@ -66,11 +66,150 @@ clearNodeFirstCreateFlag() {
   if [ -f $NODE_FIRST_CREATE_FLAG_FILE ]; then rm -f $NODE_FIRST_CREATE_FLAG_FILE; fi
 }
 
+# msIsReplStatusOk
+# check if replia set's status is ok
+# 1 primary, other's secondary
+msIsReplStatusOk() {
+  local allcnt=$1
+  shift
+  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status())" $@ | jq .members[].stateStr)
+  local pcnt=$(echo "$tmpstr" | grep PRIMARY | wc -l)
+  local scnt=$(echo "$tmpstr" | grep SECONDARY | wc -l)
+  test $pcnt -eq 1
+  test $((pcnt+scnt)) -eq $allcnt
+}
+
 msEnableBalancer() {
   if runMongoCmd "sh.setBalancerState(true)" $@; then
     log "enable balancer: succeeded"
   else
     log "enable balancer: failed"
+  fi
+}
+
+msGetHostDbVersion() {
+  local jsstr=$(cat <<EOF
+db.version()
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+}
+
+createMongoConf() {
+  local replication_replSetName
+  local storage_engine
+  local net_port
+  local setParameter_cursorTimeoutMillis
+  local operationProfiling_mode
+  local operationProfiling_slowOpThresholdMs
+  local replication_enableMajorityReadConcern
+  local sharding_clusterRole
+  local sharding_configDB
+  if [ $MY_ROLE = "mongos_node" ]; then
+    net_port=$(getItemFromFile net_port $CONF_INFO_FILE)
+    sharding_configDB=$(getItemFromFile sharding_configDB $CONF_INFO_FILE)
+    setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
+    cat > $MONGODB_CONF_PATH/mongo.conf <<MONGO_CONF
+systemLog:
+  destination: file
+  path: $MONGODB_LOG_PATH/mongo.log
+  logAppend: true
+  logRotate: reopen
+net:
+  port: $net_port
+  bindIp: 0.0.0.0
+security:
+  keyFile: $MONGODB_CONF_PATH/repl.key
+setParameter:
+  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
+sharding:
+  configDB: $sharding_configDB
+MONGO_CONF
+
+    cat > $MONGODB_CONF_PATH/mongo-admin.conf <<MONGO_CONF
+systemLog:
+  destination: syslog
+net:
+  port: $NET_MAINTAIN_PORT
+  bindIp: 0.0.0.0
+security:
+  keyFile: $MONGODB_CONF_PATH/repl.key
+setParameter:
+  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
+sharding:
+  configDB: $sharding_configDB
+processManagement:
+  fork: true
+MONGO_CONF
+  else
+    net_port=$(getItemFromFile net_port $CONF_INFO_FILE)
+    setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
+    replication_replSetName=$(getItemFromFile replication_replSetName $CONF_INFO_FILE)
+    storage_engine=$(getItemFromFile storage_engine $CONF_INFO_FILE)
+    operationProfiling_mode=$(getItemFromFile operationProfiling_mode $CONF_INFO_FILE)
+    operationProfiling_slowOpThresholdMs=$(getItemFromFile operationProfiling_slowOpThresholdMs $CONF_INFO_FILE)
+    replication_enableMajorityReadConcern=$(getItemFromFile replication_enableMajorityReadConcern $CONF_INFO_FILE)
+    if [ "$MY_ROLE" = "cs_node" ]; then
+      sharding_clusterRole="configsvr"
+    else
+      sharding_clusterRole="shardsvr"
+    fi
+    cat > $MONGODB_CONF_PATH/mongo.conf <<MONGO_CONF
+systemLog:
+  destination: file
+  path: $MONGODB_LOG_PATH/mongo.log
+  logAppend: true
+  logRotate: reopen
+net:
+  port: $net_port
+  bindIp: 0.0.0.0
+security:
+  keyFile: $MONGODB_CONF_PATH/repl.key
+  authorization: enabled
+storage:
+  dbPath: $MONGODB_DATA_PATH
+  journal:
+    enabled: true
+  engine: $storage_engine
+operationProfiling:
+  mode: $operationProfiling_mode
+  slowOpThresholdMs: $operationProfiling_slowOpThresholdMs
+replication:
+  oplogSizeMB: 2048
+  replSetName: $replication_replSetName
+sharding:
+  clusterRole: $sharding_clusterRole
+setParameter:
+  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
+MONGO_CONF
+
+    cat > $MONGODB_CONF_PATH/mongo-admin.conf <<MONGO_CONF
+systemLog:
+  destination: syslog
+net:
+  port: $NET_MAINTAIN_PORT
+  bindIp: 0.0.0.0
+storage:
+  dbPath: $MONGODB_DATA_PATH
+  journal:
+    enabled: true
+  engine: $storage_engine
+processManagement:
+  fork: true
+MONGO_CONF
+  fi
+}
+
+updateMongoConf() {
+  if ! diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then
+    cat $CONF_INFO_FILE.new > $CONF_INFO_FILE
+    createMongoConf
+  fi
+}
+
+updateHostsInfo() {
+  if ! diff $HOSTS_INFO_FILE $HOSTS_INFO_FILE.new; then
+    cat $HOSTS_INFO_FILE.new > $HOSTS_INFO_FILE
   fi
 }
 
@@ -81,6 +220,11 @@ doWhenMongosPreStart() {
   local slist=(${NODE_LIST[@]})
   local cnt=${#slist[@]}
   if [ $(getSid ${slist[0]}) = $MY_SID ]; then return 0; fi
+
+  # update config
+  updateHostsInfo
+  updateMongoConf
+
   # re-enable balancer
   shellStartMongosForAdmin
   retry 60 3 0 msGetHostDbVersion -P $NET_MAINTAIN_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
@@ -88,13 +232,170 @@ doWhenMongosPreStart() {
   msStopMongosForAdmin
 }
 
+MONGOD_BIN=/opt/mongodb/current/bin/mongod
+shellStartMongodForAdmin() {
+  runuser mongod -g svc -s "/bin/bash" -c "$MONGOD_BIN -f $MONGODB_CONF_PATH/mongo-admin.conf"
+}
+
+shellStopMongodForAdmin() {
+  runuser mongod -g svc -s "/bin/bash" -c "$MONGOD_BIN -f $MONGODB_CONF_PATH/mongo-admin.conf --shutdown"
+}
+
+msGetReplCfgFromLocal() {
+  local jsstr=$(cat <<EOF
+mydb = db.getSiblingDB("local")
+JSON.stringify(mydb.system.replset.findOne())
+EOF
+  )
+  runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
+}
+
+msUpdateReplCfgToLocal() {
+  local jsstr=$(cat <<EOF
+newlist=[$1]
+mydb = db.getSiblingDB('local')
+cfg = mydb.system.replset.findOne()
+cnt = cfg.members.length
+for(i=0; i<cnt; i++) {
+  cfg.members[i].host=newlist[i]
+}
+mydb.system.replset.update({"_id":"$RS_NAME"},cfg)
+EOF
+  )
+  runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
+}
+
+updateShardInfoForShardNode() {
+  local jsstr
+  jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('admin')
+csinfo = mydb.system.version.findOne({"_id": "shardIdentity"}).configsvrConnectionString
+EOF
+  )
+  local csconnstr=$(runMongoCmd "$jsstr" $@)
+  local oldcslist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE))
+  local oldcsport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE)
+  local newcslist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE.new))
+  local newcsport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE.new)
+  local cnt=${#oldcslist[@]}
+  local nid
+  local oldip
+  local newip
+  for((i=0;i<$cnt;i++)); do
+    nid=$(getNodeId ${oldcslist[i]})
+    oldip=$(getIp ${oldcslist[i]})
+    for((j=0;j<$cnt;j++)); do
+      if [ ! $nid = "$(getNodeId ${newcslist[j]})" ]; then continue; fi
+      newip=$(getIp ${newcslist[j]})
+      csconnstr=$(echo "$csconnstr" | sed 's/'$oldip:$oldcsport'/'$newip:$newcsport'/')
+    done
+  done
+
+  jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('admin')
+mydb.system.version.updateOne({"_id": "shardIdentity"}, {\$set: {"configsvrConnectionString": "$csconnstr"}})
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+}
+
+updateShardInfoForCsNode() {
+  local jsstr
+  jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('config')
+mydb.shards.find()
+EOF
+  )
+  local tmpstr=$(runMongoCmd "$jsstr" $@ | jq '.host' | sed 's/"//g')
+  local oldshardlist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE))
+  local oldport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE)
+  local newshardlist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE.new))
+  local newport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE.new)
+  local cnt=${#oldshardlist[@]}
+  local replname
+  local oldip
+  local nid
+  local newip
+  local shardhoststr
+  for line in $(echo "$tmpstr"); do
+    shardhoststr=$line
+    replname=$(echo "$line" | cut -d'/' -f1)
+    for((i=0;i<$cnt;i++)); do
+      nid=$(getNodeId ${oldshardlist[i]})
+      oldip=$(getIp ${oldshardlist[i]})
+      for((j=0;j<$cnt;j++)); do
+        if [ ! $nid = "$(getNodeId ${newshardlist[j]})" ]; then continue; fi
+        newip=$(getIp ${newshardlist[j]})
+        shardhoststr=$(echo "$shardhoststr" | sed 's/'$oldip:$oldport'/'$newip:$newport'/')
+      done
+    done
+    jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('config')
+mydb.shards.updateOne({"_id": "$replname"}, {\$set: {"host": "$shardhoststr"}})
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+  done
+}
+
+changeReplNodeNetInfo() {
+  # start mongod in admin mode
+  shellStartMongodForAdmin
+
+  local replcfg
+  retry 60 3 0 msGetHostDbVersion -P $NET_MAINTAIN_PORT
+  replcfg=$(msGetReplCfgFromLocal)
+  local cnt=${#NODE_LIST[@]}
+  local oldinfo=$(getItemFromFile NODE_LIST $HOSTS_INFO_FILE)
+  local oldport=$(getItemFromFile PORT $HOSTS_INFO_FILE)
+  local tmpstr
+  local newlist
+  for((i=0;i<$cnt;i++)); do
+    # old ip:port
+    tmpstr=$(echo "$replcfg" | jq ".members[$i] | .host" | sed s/\"//g)
+    # nodeid
+    tmpstr=$(echo "$oldinfo" | sed 's/\/cln-/:'$oldport'\/cln-/g' | sed 's/ /\n/g' | sed -n /$tmpstr/p)
+    tmpstr=$(getNodeId $tmpstr)
+    # newip
+    tmpstr=$(echo ${NODE_LIST[@]} | grep -o '[[:digit:].]\+/'$tmpstr | cut -d'/' -f1)
+    newlist="$newlist\"$tmpstr:$MY_PORT\","
+  done
+  # update replicaset config
+  # js array: "ip:port","ip:port","ip:port"
+  newlist=${newlist:0:-1}
+  msUpdateReplCfgToLocal "$newlist"
+
+  # update shard info
+  if [ $MY_ROLE = "cs_node" ]; then
+    updateShardInfoForCsNode -P $NET_MAINTAIN_PORT
+  else
+    updateShardInfoForShardNode -P $NET_MAINTAIN_PORT
+  fi
+
+  # stop mongod in admin mode
+  shellStopMongodForAdmin
+}
+
+updateCSShardInfo() {
+  retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  retry 60 3 0 msIsReplStatusOk ${#NODE_LIST[@]} -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
 doWhenReplPreStart() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+  if [ $CHANGE_VXNET_FLAG = "true" ]; then
+    changeReplNodeNetInfo
+  else
+    :
+  fi
 }
 
 start() {
   doWhenMongosPreStart
   doWhenReplPreStart
+  # updat conf files
+  updateHostsInfo
+  updateMongoConf
   _start
   clearNodeFirstCreateFlag
 }
@@ -180,19 +481,6 @@ EOF
   runMongoCmd "$initjs" -P $MY_PORT
 }
 
-# msIsReplStatusOk
-# check if replia set's status is ok
-# 1 primary, other's secondary
-msIsReplStatusOk() {
-  local allcnt=$1
-  shift
-  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status())" $@ | jq .members[].stateStr)
-  local pcnt=$(echo "$tmpstr" | grep PRIMARY | wc -l)
-  local scnt=$(echo "$tmpstr" | grep SECONDARY | wc -l)
-  test $pcnt -eq 1
-  test $((pcnt+scnt)) -eq $allcnt
-}
-
 msIsHostMaster() {
   local hostinfo=$1
   shift
@@ -255,14 +543,6 @@ msInitShardCluster() {
   tmpstr="${tmpstr:1};"
   
   runMongoCmd "$tmpstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
-}
-
-msGetHostDbVersion() {
-  local jsstr=$(cat <<EOF
-db.version()
-EOF
-  )
-  runMongoCmd "$jsstr" $@
 }
 
 doWhenReplInit() {
@@ -422,113 +702,6 @@ getNodesOrder() {
   echo $tmpstr
 }
 
-createMongoConf() {
-  local replication_replSetName
-  local storage_engine
-  local net_port
-  local setParameter_cursorTimeoutMillis
-  local operationProfiling_mode
-  local operationProfiling_slowOpThresholdMs
-  local replication_enableMajorityReadConcern
-  local sharding_clusterRole
-  local sharding_configDB
-  if [ $MY_ROLE = "mongos_node" ]; then
-    net_port=$(getItemFromFile net_port $CONF_INFO_FILE)
-    sharding_configDB=$(getItemFromFile sharding_configDB $CONF_INFO_FILE)
-    setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
-    cat > $MONGODB_CONF_PATH/mongo.conf <<MONGO_CONF
-systemLog:
-  destination: file
-  path: $MONGODB_LOG_PATH/mongo.log
-  logAppend: true
-  logRotate: reopen
-net:
-  port: $net_port
-  bindIp: 0.0.0.0
-security:
-  keyFile: $MONGODB_CONF_PATH/repl.key
-setParameter:
-  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
-sharding:
-  configDB: $sharding_configDB
-MONGO_CONF
-
-    cat > $MONGODB_CONF_PATH/mongo-admin.conf <<MONGO_CONF
-systemLog:
-  destination: syslog
-net:
-  port: $NET_MAINTAIN_PORT
-  bindIp: 0.0.0.0
-security:
-  keyFile: $MONGODB_CONF_PATH/repl.key
-setParameter:
-  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
-sharding:
-  configDB: $sharding_configDB
-processManagement:
-  fork: true
-MONGO_CONF
-  else
-    net_port=$(getItemFromFile net_port $CONF_INFO_FILE)
-    setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
-    replication_replSetName=$(getItemFromFile replication_replSetName $CONF_INFO_FILE)
-    storage_engine=$(getItemFromFile storage_engine $CONF_INFO_FILE)
-    operationProfiling_mode=$(getItemFromFile operationProfiling_mode $CONF_INFO_FILE)
-    operationProfiling_slowOpThresholdMs=$(getItemFromFile operationProfiling_slowOpThresholdMs $CONF_INFO_FILE)
-    replication_enableMajorityReadConcern=$(getItemFromFile replication_enableMajorityReadConcern $CONF_INFO_FILE)
-    if [ "$MY_ROLE" = "cs_node" ]; then
-      sharding_clusterRole="configsvr"
-    else
-      sharding_clusterRole="shardsvr"
-    fi
-    cat > $MONGODB_CONF_PATH/mongo.conf <<MONGO_CONF
-systemLog:
-  destination: file
-  path: $MONGODB_LOG_PATH/mongo.log
-  logAppend: true
-  logRotate: reopen
-net:
-  port: $net_port
-  bindIp: 0.0.0.0
-security:
-  keyFile: $MONGODB_CONF_PATH/repl.key
-  authorization: enabled
-storage:
-  dbPath: $MONGODB_DATA_PATH
-  directoryPerDB: true
-  journal:
-    enabled: true
-  engine: $storage_engine
-operationProfiling:
-  mode: $operationProfiling_mode
-  slowOpThresholdMs: $operationProfiling_slowOpThresholdMs
-replication:
-  oplogSizeMB: 2048
-  replSetName: $replication_replSetName
-sharding:
-  clusterRole: $sharding_clusterRole
-setParameter:
-  cursorTimeoutMillis: $setParameter_cursorTimeoutMillis
-MONGO_CONF
-
-    cat > $MONGODB_CONF_PATH/mongo-admin.conf <<MONGO_CONF
-systemLog:
-  destination: syslog
-net:
-  port: $NET_MAINTAIN_PORT
-  bindIp: 0.0.0.0
-storage:
-  dbPath: $MONGODB_DATA_PATH
-  directoryPerDB: true
-  journal:
-    enabled: true
-  engine: $storage_engine
-processManagement:
-  fork: true
-MONGO_CONF
-  fi
-}
-
 clusterPreInit() {
   # folder
   mkdir -p $MONGODB_DATA_PATH $MONGODB_LOG_PATH $MONGODB_CONF_PATH
@@ -546,11 +719,8 @@ clusterPreInit() {
   encrypted=$(echo -n ${GLOBAL_UUID}${CLUSTER_ID} | sha256sum | base64)
   echo ${encrypted:16:16} > $DB_QC_LOCAL_PASS_FILE
   #create config files
-  cat $HOSTS_INFO_FILE.new > $HOSTS_INFO_FILE
-  cat $CONF_INFO_FILE.new > $CONF_INFO_FILE
   touch $MONGODB_CONF_PATH/mongo.conf
   chown mongod:svc $MONGODB_CONF_PATH/mongo.conf
-  createMongoConf
 }
 
 changeVxnetPreCheck() {

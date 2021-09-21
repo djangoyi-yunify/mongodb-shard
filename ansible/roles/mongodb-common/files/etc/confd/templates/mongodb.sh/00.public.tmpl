@@ -12,6 +12,7 @@
 {{- $deletingHostsFlag := "" }}
 {{- $deletingList := "" }}
 {{- $tmpval := "" }}
+{{- $tmpall := "" }}
 
 {{- if len (ls "/vertical-scaling-roles") }}
   {{- $verticalScalingFlag = "true" }}
@@ -81,6 +82,7 @@ cs_rsname=repl_cs
 # shard_node
 {{- $group_list := "" }}
 {{- $tmpval = "" }}
+{{- $tmpall = "" }}
 {{- range getvs "/hosts/shard_node/*/gid" -}}
   {{- $tmpval = printf "%s%s " $tmpval . }}
 {{- end }}
@@ -105,8 +107,10 @@ shard_group_list=({{ $group_list }})
 shard_{{ $gid }}_list=({{ $tmpval}})
 encrypted=$(echo -n {{ $node_id }} | sha256sum | base64)
 shard_{{ $gid }}_rsname=repl_shard_${encrypted:0:8}
+  {{- $tmpall = printf "%s%s " $tmpall $tmpval}}
   {{- $tmpval = "" }}
 {{- end }}
+shard_all_list=({{ $tmpall }})
 
 # cluster
 cluster_global_uuid={{ getv "/cluster/global_uuid" }}
