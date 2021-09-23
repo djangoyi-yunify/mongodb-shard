@@ -520,16 +520,17 @@ EOF
   runMongoCmd "$jsstr" -P $MY_PORT
 }
 
-msInitShardCluster() {
-  local cnt=${#INFO_SHARD_GROUP_LIST[@]}
+# run at mongos
+msAddShardNodeByGidList() {
+  local glist=($(echo $@))
+  local cnt=${#glist[@]}
   local subcnt
   local tmpstr
   local currepl
-  local tmplist
   local tmpip
-  for((i=1;i<=$cnt;i++)); do
-    tmplist=($(eval echo \${INFO_SHARD_${i}_LIST[@]}))
-    currepl=$(eval echo \$INFO_SHARD_${i}_RSNAME)
+  for((i=0;i<$cnt;i++)); do
+    tmplist=($(eval echo \${INFO_SHARD_${glist[i]}_LIST[@]}))
+    currepl=$(eval echo \$INFO_SHARD_${glist[i]}_RSNAME)
     subcnt=${#tmplist[@]}
     tmpstr="$tmpstr;sh.addShard(\"$currepl/"
     retry 60 3 0 msIsReplStatusOk $subcnt -H $(getIp ${tmplist[0]}) -P $INFO_SHARD_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
@@ -541,7 +542,7 @@ msInitShardCluster() {
     tmpstr="${tmpstr:0:-1}\")"
   done
   tmpstr="${tmpstr:1};"
-  
+  echo $tmpstr
   runMongoCmd "$tmpstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
 }
 
@@ -564,7 +565,7 @@ doWhenMongosInit() {
   if [ ! $(getSid ${slist[0]}) = $MY_SID ]; then return 0; fi
   log "init shard cluster begin ..."
   retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
-  retry 60 3 0 msInitShardCluster
+  retry 60 3 0 msAddShardNodeByGidList ${INFO_SHARD_GROUP_LIST[@]}
   log "init shard cluster done"
 }
 
@@ -700,6 +701,27 @@ getNodesOrder() {
   fi
   log "$tmpstr"
   echo $tmpstr
+}
+
+doWhenScaleOutForMongos() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return; fi
+  if [ $ADDING_ROLE = "shard_node" ]; then
+    retry 60 3 0 msAddShardNodeByGidList ${ADDING_LIST[@]}
+  else
+    :
+  fi
+}
+
+scaleOut() {
+  doWhenScaleOutForMongos
+}
+
+scaleInPreCheck() {
+  :
+}
+
+scaleIn() {
+  :
 }
 
 clusterPreInit() {

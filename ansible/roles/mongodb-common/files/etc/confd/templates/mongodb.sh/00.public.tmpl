@@ -8,8 +8,10 @@
 {{- $changeVxnetFlag := "" }}
 {{- $changeVxnetRoles := "" }}
 {{- $addingHostsFlag := "" }}
+{{- $addingRole := "" }}
 {{- $addingList := "" }}
 {{- $deletingHostsFlag := "" }}
+{{- $deletingRole := "" }}
 {{- $deletingList := "" }}
 {{- $tmpval := "" }}
 {{- $tmpall := "" }}
@@ -29,15 +31,26 @@
 {{- $tmpval = "" }}
 {{- if len (ls "/adding-hosts") }}
   {{- $addingHostsFlag = "true" }}
-  {{- $tmp0 := printf "/adding-hosts/%s" $nodeRole }}
-  {{- range lsdir $tmp0 -}}
-    {{- $sid := getv (printf "/adding-hosts/%s/%s/sid" $nodeRole .) -}}
-    {{- $ip := getv (printf "/adding-hosts/%s/%s/ip" $nodeRole .) -}}
-    {{- $tmpval = printf "%s%s/%s " $tmpval $sid $ip }}
-  {{- end -}}
+  {{- $tmpRoles := lsdir "/adding-hosts" }}
+  {{- if eq (len $tmpRoles) 1 }}
+    {{- $addingRole = "mongos_node" }}
+    {{- range lsdir (printf "/adding-hosts/%s" $addingRole) -}}
+      {{- $sid := getv (printf "/adding-hosts/%s/%s/sid" $addingRole .) -}}
+      {{- $ip := getv (printf "/adding-hosts/%s/%s/ip" $addingRole .) -}}
+      {{- $node_id := getv (printf "/adding-hosts/%s/%s/node_id" $addingRole .) -}}
+      {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+    {{- end -}}
+  {{- else }}
+    {{- $addingRole = "shard_node" }}
+    {{- range lsdir (printf "/adding-hosts/%s" $addingRole) -}}
+      {{- $gid := getv (printf "/adding-hosts/%s/%s/gid" $addingRole .) -}}
+      {{- $tmpval = printf "%s%s " $tmpval $gid }}
+    {{- end }}
+  {{- end }}
   {{- $addingList = $tmpval }}
 {{- else }}
   {{- $addingHostsFlag = "false" }}
+  {{- $addingRole = "" }}
   {{- $addingList = "" }}
 {{- end }}
 

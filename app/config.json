@@ -163,6 +163,8 @@
                             "description": "The replica number of the node",
                             "type": "integer",
                             "default": 2,
+                            "min": 2,
+                            "max": 2,
                             "readonly": "yes",
                             "required": "yes"
                         }
