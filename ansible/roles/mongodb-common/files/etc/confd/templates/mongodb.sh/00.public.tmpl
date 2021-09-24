@@ -57,15 +57,23 @@
 {{- $tmpval = "" }}
 {{- if len (ls "/deleting-hosts") }}
   {{- $deletingHostsFlag = "true" }}
-  {{- $tmp0 := printf "/deleting-hosts/%s" $nodeRole }}
-  {{- range lsdir $tmp0 -}}
-    {{- $sid := getv (printf "/deleting-hosts/%s/%s/sid" $nodeRole .) -}}
-    {{- $ip := getv (printf "/deleting-hosts/%s/%s/ip" $nodeRole .) -}}
-    {{- $tmpval = printf "%s%s/%s " $tmpval $sid $ip }}
-  {{- end -}}
+  {{- $tmpRoles := lsdir "/deleting-hosts" }}
+  {{- if eq (len $tmpRoles) 1 }}
+    {{- $deletingRole = "mongos_node" }}
+      {{- range lsdir (printf "/deleting-hosts/%s" $deletingRole) -}}
+      {{- $sid := getv (printf "/deleting-hosts/%s/%s/sid" $deletingRole .) -}}
+      {{- $ip := getv (printf "/deleting-hosts/%s/%s/ip" $deletingRole .) -}}
+      {{- $node_id := getv (printf "/deleting-hosts/%s/%s/node_id" $deletingRole .) -}}
+      {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+    {{- end -}}
+  {{- else }}
+    {{- $deletingRole = "shard_node" }}
+    {{- $tmpval = "" }}
+  {{- end }}
   {{- $deletingList = $tmpval }}
 {{- else }}
   {{- $deletingHostsFlag = "false" }}
+  {{- $deletingRole = "" }}
   {{- $deletingList = "" }}
 {{- end }}
 

@@ -2,6 +2,7 @@
 # error code
 ERR_BALANCER_STOP=201
 ERR_CHGVXNET_PRECHECK=202
+ERR_SCALEIN_SHARD_FORBIDDEN=203
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -717,7 +718,11 @@ scaleOut() {
 }
 
 scaleInPreCheck() {
-  :
+  if [ $DELETING_ROLE = "shard_node" ]; then
+    return $ERR_SCALEIN_SHARD_FORBIDDEN
+  else
+    return 0
+  fi
 }
 
 scaleIn() {
