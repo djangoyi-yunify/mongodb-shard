@@ -707,14 +707,17 @@ getNodesOrder() {
 doWhenScaleOutForMongos() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return; fi
   if [ $ADDING_ROLE = "shard_node" ]; then
-    retry 60 3 0 msAddShardNodeByGidList ${ADDING_LIST[@]}
-  else
-    :
+    local sortlist=($(getInitNodeList))
+    if [ $(getSid ${sortlist[0]}) = $MY_SID ]; then
+      retry 60 3 0 msAddShardNodeByGidList ${ADDING_LIST[@]}
+    fi
   fi
 }
 
 scaleOut() {
   doWhenScaleOutForMongos
+  updateMongoConf
+  updateHostsInfo
 }
 
 scaleInPreCheck() {
@@ -756,11 +759,50 @@ changeVxnetPreCheck() {
   if [ ! "$gotStr" = "$wantStr" ]; then return $ERR_CHGVXNET_PRECHECK; fi
 }
 
+# check if node is scaling
+# 1: scaleIn
+# 0: no change
+# 2: scaleOut
+getScalingStatus() {
+  local oldlist=($(getItemFromFile NODE_LIST $HOSTS_INFO_FILE))
+  local newlist=($(getItemFromFile NODE_LIST $HOSTS_INFO_FILE.new))
+  local oldcnt=${#oldlist[@]}
+  local newcnt=${#newlist[@]}
+  if (($oldcnt < $newcnt)); then
+    echo 2
+  elif (($oldcnt > $newcnt)); then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 checkConfdChange() {
   if [ ! -d /data/appctl/logs ]; then
     log "cluster pre-init"
     clusterPreInit
+    return 0
   fi
 
-  log "other stuff"
+  if [ $VERTICAL_SCALING_FLAG = "true" ] || [ $ADDING_HOSTS_FLAG = "true" ] || [ $DELETING_HOSTS_FLAG = "true" ] || [ $CHANGE_VXNET_FLAG = "true" ]; then return 0; fi
+  local sstatus=$(getScalingStatus)
+  case $sstatus in
+    "0") :;;
+    "1") updateHostsInfo; return 0;;
+    "2") return 0;;
+  esac
+  
+  local hostschgflag
+  local confchgflag
+  if diff $HOSTS_INFO_FILE $HOSTS_INFO_FILE.new; then hostschgflag = false; else hostschgflag = true; fi
+  if diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then confchgflag = false; else confchgflag = true; fi
+  if [ $hostschgflag = "true" ] && [ $confchgflag = "true" ]; then
+    log "port changed, conf changed"
+  elif [ $hostschgflag = "true" ] && [ $confchgflag = "false" ]; then
+    log "port changed, conf unchanged"
+  elif [ $hostschgflag = "false" ] && [ $confchgflag = "true" ]; then
+    log "port unchanged, conf changed"
+  else
+    log "no change"
+  fi
 }
