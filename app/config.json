@@ -290,6 +290,7 @@
                         "description": "net.port",
                         "type": "integer",
                         "default": 27019,
+                        "changeable": false,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
@@ -303,6 +304,7 @@
                         "label": "operationProfiling.mode",
                         "description": "operationProfiling.mode",
                         "type": "string",
+                        "range": ["off", "slowOp", "all"],
                         "default": "off",
                         "required": "yes"
                     }, {
@@ -324,6 +326,7 @@
                         "description": "net.port",
                         "type": "integer",
                         "default": 27018,
+                        "changeable": false,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
@@ -337,6 +340,7 @@
                         "label": "operationProfiling.mode",
                         "description": "operationProfiling.mode",
                         "type": "string",
+                        "range": ["off", "slowOp", "all"],
                         "default": "off",
                         "required": "yes"
                     }, {

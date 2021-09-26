@@ -777,6 +777,51 @@ getScalingStatus() {
   fi
 }
 
+doWhenMongosConfChanged() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local jsstr
+  local setParameter_cursorTimeoutMillis
+  if ! diff $HOSTS_INFO_FILE $HOSTS_INFO_FILE.new; then
+    # net.port, perhaps include setParameter.cursorTimeoutMillis
+    # restart mongos
+    log "mongos_node: restart mongos.service"
+    updateHostsInfo
+    updateMongoConf
+    systemctl restart mongos.service
+  elif ! diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then
+    # only setParameter.cursorTimeoutMillis
+    log "mongos_node: change cursorTimeoutMillis"
+    updateMongoConf
+    setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
+    jsstr=$(cat <<EOF
+db.adminCommand({setParameter:1,cursorTimeoutMillis: $setParameter_cursorTimeoutMillis})
+EOF
+    )
+    runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  fi
+}
+
+isMongodNeedRestart() {
+  local cnt = $(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep replication_enableMajorityReadConcern | wc -l)
+  test (($cnt > 0))
+}
+
+# sort nodes for changing configue
+# secodary node first, primary node last
+getRollingList() {
+  :
+}
+
+doWhenReplConfChanged() {
+  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+  if diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then return 0; fi
+  if isMongodNeedRestart; then
+    :
+  else
+    :
+  fi
+}
+
 checkConfdChange() {
   if [ ! -d /data/appctl/logs ]; then
     log "cluster pre-init"
@@ -792,17 +837,6 @@ checkConfdChange() {
     "2") return 0;;
   esac
   
-  local hostschgflag
-  local confchgflag
-  if diff $HOSTS_INFO_FILE $HOSTS_INFO_FILE.new; then hostschgflag = false; else hostschgflag = true; fi
-  if diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then confchgflag = false; else confchgflag = true; fi
-  if [ $hostschgflag = "true" ] && [ $confchgflag = "true" ]; then
-    log "port changed, conf changed"
-  elif [ $hostschgflag = "true" ] && [ $confchgflag = "false" ]; then
-    log "port changed, conf unchanged"
-  elif [ $hostschgflag = "false" ] && [ $confchgflag = "true" ]; then
-    log "port unchanged, conf changed"
-  else
-    log "no change"
-  fi
+  doWhenMongosConfChanged
+  doWhenReplConfChanged
 }
