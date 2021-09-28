@@ -784,13 +784,13 @@ doWhenMongosConfChanged() {
   if ! diff $HOSTS_INFO_FILE $HOSTS_INFO_FILE.new; then
     # net.port, perhaps include setParameter.cursorTimeoutMillis
     # restart mongos
-    log "mongos_node: restart mongos.service"
+    log "$MY_ROLE: restart mongos.service"
     updateHostsInfo
     updateMongoConf
     systemctl restart mongos.service
   elif ! diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then
     # only setParameter.cursorTimeoutMillis
-    log "mongos_node: change cursorTimeoutMillis"
+    log "$MY_ROLE: change cursorTimeoutMillis"
     updateMongoConf
     setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)
     jsstr=$(cat <<EOF
@@ -802,23 +802,110 @@ EOF
 }
 
 isMongodNeedRestart() {
-  local cnt = $(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep replication_enableMajorityReadConcern | wc -l)
-  test (($cnt > 0))
+  local cnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep replication_enableMajorityReadConcern | wc -l) || :
+  if (($cnt > 0)); then return 0; else return 1; fi
 }
 
 # sort nodes for changing configue
 # secodary node first, primary node last
 getRollingList() {
-  :
+  local cnt=${#NODE_LIST[@]}
+  local tmpstr
+  local master
+  local ip
+  for((i=0;i<$cnt;i++)); do
+    ip=$(getIp ${NODE_LIST[i]})
+    if msIsHostMaster "$ip:$MY_PORT" -H $ip -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+      master=${NODE_LIST[i]}
+      continue
+    fi
+    tmpstr="$tmpstr ${NODE_LIST[i]}"
+  done
+  tmpstr="$tmpstr $master"
+  echo $tmpstr
+}
+
+msForceStepDown() {
+  runMongoCmd "rs.stepDown()" $@ || :
+}
+
+getOperationProfilingModeCode() {
+  local res
+  case $1 in
+    "off") res=0;;
+    "slowOp") res=1;;
+    "all") res=2;;
+  esac
+  echo $res
+}
+
+# change conf according to $CONF_INFO_FILE.new
+msReplChangeConf() {
+  local tmpcnt
+  local jsstr
+  local setParameter_cursorTimeoutMillis
+  local operationProfiling_mode
+  local operationProfiling_mode_code
+  local operationProfiling_slowOpThresholdMs
+
+  # setParameter_cursorTimeoutMillis
+  tmpcnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep setParameter | wc -l) || :
+  if (($tmpcnt > 0)); then
+    setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE.new)
+    jsstr=$(cat <<EOF
+db.adminCommand({setParameter:1,cursorTimeoutMillis:$setParameter_cursorTimeoutMillis})
+EOF
+    )
+    runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+    log "setParameter.cursorTimeoutMillis changed"
+  fi
+
+  # operationProfiling_mode
+  # operationProfiling_slowOpThresholdMs
+  tmpcnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep operationProfiling | wc -l) || :
+  if (($tmpcnt > 0)); then
+    operationProfiling_mode=$(getItemFromFile operationProfiling_mode $CONF_INFO_FILE.new)
+    operationProfiling_slowOpThresholdMs=$(getItemFromFile operationProfiling_slowOpThresholdMs $CONF_INFO_FILE.new)
+    operationProfiling_mode_code=$(getOperationProfilingModeCode $operationProfiling_mode)
+    jsstr=$(cat <<EOF
+rs.slaveOk();
+var dblist=db.adminCommand('listDatabases').databases;
+var tmpdb;
+for (i=0;i<dblist.length;i++) {
+  tmpdb=db.getSiblingDB(dblist[i].name);
+  tmpdb.setProfilingLevel($operationProfiling_mode_code, { slowms: $operationProfiling_slowOpThresholdMs });
+}
+EOF
+    )
+    runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+    log "operationProfiling changed"
+  fi
 }
 
 doWhenReplConfChanged() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
   if diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then return 0; fi
+  local rlist=($(getRollingList))
+  local cnt=${#rlist[@]}
+  local tmpip
+  tmpip=$(getIp ${rlist[0]})
+  if [ ! $tmpip = "$MY_IP" ]; then log "$MY_ROLE: skip changing configue"; return 0; fi
+
   if isMongodNeedRestart; then
-    :
+    log "rolling restart mongod.service"
+    for((i=0;i<$cnt;i++)); do
+      tmpip=$(getIp ${rlist[i]})
+      if msIsHostMaster "$tmpip:$MY_PORT" -H $tmpip -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+        msForceStepDown -H $tmpip -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+      fi
+      ssh root@$tmpip "appctl updateMongoConf && systemctl restart mongod.service"
+      retry 60 3 0 msIsReplStatusOk $cnt -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+    done
   else
-    :
+    for((i=0;i<$cnt;i++)); do
+      tmpip=$(getIp ${rlist[i]})
+      ssh root@$tmpip "appctl msReplChangeConf && appctl updateMongoConf"
+    done
   fi
 }
 
