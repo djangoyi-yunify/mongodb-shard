@@ -13,6 +13,7 @@ DB_QC_LOCAL_PASS_FILE=/data/appctl/data/qc_local_pass
 HOSTS_INFO_FILE=/data/appctl/data/hosts.info
 CONF_INFO_FILE=/data/appctl/data/conf.info
 NODE_FIRST_CREATE_FLAG_FILE=/data/appctl/data/node.first.create.flag
+REPL_MONITOR_ITEM_FILE=/opt/app/current/bin/node/repl.monitor
 
 # runMongoCmd
 # desc run mongo shell
@@ -926,4 +927,32 @@ checkConfdChange() {
   
   doWhenMongosConfChanged
   doWhenReplConfChanged
+}
+
+msGetServerStatus() {
+  local tmpstr=$(runMongoCmd "JSON.stringify(db.serverStatus())" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE))
+  echo "$tmpstr"
+}
+
+doWhenMonitorMongos() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+}
+
+doWhenMonitorRepl() {
+  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local milist=($(cat $REPL_MONITOR_ITEM_FILE))
+  local serverStr=$(msGetServerStatus)
+  local cnt=${#milist[@]}
+  local tmpstr
+  local res=""
+  for((i=0;i<$cnt;i++)); do
+    tmpstr=$(echo "$serverStr" | jq $(echo ${milist[$i]} | cut -d'|' -f2))
+    res="$res,\"$(echo ${milist[$i]} | cut -d'|' -f1)\":$tmpstr"
+  done
+  echo "{${res:1}}"
+}
+
+monitor() {
+  doWhenMonitorMongos
+  doWhenMonitorRepl
 }
