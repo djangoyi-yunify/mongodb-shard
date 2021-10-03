@@ -934,21 +934,77 @@ msGetServerStatus() {
   echo "$tmpstr"
 }
 
+# calculate replLag, unit: minute
+# secondary's optime - primary's optime
+# if cluster's status is not ok (1 primary, 2 secondary) 
+#  replLag is set to ''
+# scale_factor_when_display=0.1
+monitorGetReplLag() {
+  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status().members)" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE))
+  local res
+  local timepri
+  if isMeMaster; then
+    res=0
+  else
+    timepri=$(echo $tmpstr | jq '.[] | select(.stateStr=="PRIMARY") | .optime.ts."$timestamp".t')
+    timeme=$(echo $tmpstr | jq '.[] | select(.name=="'$MY_IP':'$MY_PORT'") | .optime.ts."$timestamp".t')
+    if [ -z "$timepri" ] || [ -z "$timeme" ]; then
+      res=""
+    else
+      res=$(echo "scale=0;($timeme-$timepri)/6" | bc)
+    fi
+  fi
+  echo "\"repl-lag\":$res"
+}
+
+# unit "%"
+# scale_factor_when_display=0.1
+moCalcPer() {
+  local type=$1
+  shift
+  local tmpstr=$(echo $@ | sed 's/"//g')
+  local divisor
+  local dividend
+  local res
+  if [ "$type" = 1 ]; then
+    divisor=${tmpstr% *}
+    dividend=${tmpstr##* }
+    res=$(echo "scale=0;($divisor)*1000/$dividend" | sed 's/ /+/g' | bc)
+  else
+    divisor=${tmpstr%% *}
+    dividend=${tmpstr#* }
+    res=$(echo "scale=0;$divisor*1000/($dividend)" | sed 's/ /+/g' | bc)
+  fi
+  echo $res
+}
+
 doWhenMonitorMongos() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
 }
 
 doWhenMonitorRepl() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  local milist=($(cat $REPL_MONITOR_ITEM_FILE))
   local serverStr=$(msGetServerStatus)
   local cnt=${#milist[@]}
   local tmpstr
-  local res=""
-  for((i=0;i<$cnt;i++)); do
-    tmpstr=$(echo "$serverStr" | jq $(echo ${milist[$i]} | cut -d'|' -f2))
-    res="$res,\"$(echo ${milist[$i]} | cut -d'|' -f1)\":$tmpstr"
-  done
+  local res
+  local pipestr
+  local pipep
+  local title
+  while read line; do
+    title=$(echo $line | cut -d'|' -f1)
+    pipestr=$(echo $line | cut -d'|' -f2)
+    pipep=$(echo $line | cut -d'|' -f3)
+    tmpstr=$(echo "$serverStr" |jq "$pipep")
+    if [ ! -z "$pipestr" ]; then
+      tmpstr=$(eval $pipestr $tmpstr)
+    fi
+    res="$res,\"$title\":$tmpstr"
+  done < $REPL_MONITOR_ITEM_FILE
+  # conn-usage
+  #res="$res,$(monitorGetConnUsage {${res:1}})"
+  # repl-lag
+  #res="$res,$(monitorGetReplLag)"
   echo "{${res:1}}"
 }
 

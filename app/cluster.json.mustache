@@ -97,6 +97,42 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
+                "opcountersRepl-insert": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-query": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-update": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-delete": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-getmore": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-command": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
                 "connections-current": {
                     "unit": "",
                     "value_type": "int",
@@ -115,6 +151,30 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
+                "metrics-cursor-timedOut": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-noTimeout": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-pinned": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                }
                 "network-bytesIn": {
                     "unit": "",
                     "value_type": "int",
@@ -151,30 +211,78 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
+                "repl-lag": {
+                    "unit": "min",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "conn-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "metrics-operation-scanAndOrder": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-operation-writeConflicts": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                }
+                "wiredTiger-cache-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "wiredTiger-cache-dirty-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
                 "metrics-document-deleted": {
                     "unit": "",
                     "value_type": "int",
-                    "statistics_type": "latest",
+                    "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
                 "metrics-document-inserted": {
                     "unit": "",
                     "value_type": "int",
-                    "statistics_type": "latest",
+                    "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
                 "metrics-document-returned": {
                     "unit": "",
                     "value_type": "int",
-                    "statistics_type": "latest",
+                    "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
                 "metrics-document-updated": {
                     "unit": "",
                     "value_type": "int",
-                    "statistics_type": "latest",
+                    "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
+                "metrics-queryExecutor-scannedKeys": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-queryExecutor-scannedDocs": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                }
                 "metrics-ttl-deletedDocuments": {
                     "unit": "",
                     "value_type": "int",
@@ -182,6 +290,42 @@
                     "scale_factor_when_display": 1
                 },
                 "metrics-ttl-passes": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-activeClients-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-activeClients-readers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-activeClients-writers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-currentQueue-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-currentQueue-readers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-currentQueue-writers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
@@ -196,10 +340,23 @@
                     "opcounters-delete",
                     "opcounters-getmore"
                 ],
+                "opcountersRepl": [
+                    "opcountersRepl-insert",
+                    "opcountersRepl-query",
+                    "opcountersRepl-update",
+                    "opcountersRepl-delete",
+                    "opcountersRepl-getmore"
+                ]
                 "connections": [
                     "connections-current",
                     "connections-totalCreated",
                     "connections-available"
+                ],
+                "metrics-cursor": [
+                    "metrics-cursor-timedOut",
+                    "metrics-cursor-open-noTimeout",
+                    "metrics-cursor-open-pinned",
+                    "metrics-cursor-open-total"
                 ],
                 "network": [
                     "network-bytesIn",
@@ -211,24 +368,55 @@
                     "wiredTiger-concurrentTransactions-read-out",
                     "wiredTiger-concurrentTransactions-read-available"
                 ],
+                "metrics-operation": [
+                    "metrics-operation-scanAndOrder",
+                    "metrics-operation-writeConflicts"
+                ],
+                "wiredTiger-cache": [
+                    "wiredTiger-cache-usage",
+                    "wiredTiger-cache-dirty-usage"
+                ],
                 "metrics-document": [
                     "metrics-document-deleted",
                     "metrics-document-inserted",
                     "metrics-document-returned",
                     "metrics-document-updated"
                 ],
+                "metrics-queryExecutor": [
+                    "metrics-queryExecutor-scannedKeys",
+                    "metrics-queryExecutor-scannedDocs"
+                ],
                 "metrics-ttl": [
                     "metrics-ttl-deletedDocuments",
                     "metrics-ttl-passes"
+                ],
+                "globalLock-activeClients": [
+                    globalLock-activeClients-total,
+                    globalLock-activeClients-readers,
+                    globalLock-activeClients-writers
+                ],
+                "globalLock-currentQueue": [
+                    globalLock-currentQueue-total,
+                    globalLock-currentQueue-readers,
+                    globalLock-currentQueue-writers
                 ]
             },
             "display": [
                 "opcounters",
+                "opcountersRepl",
                 "connections",
+                "metrics-cursor",
                 "network",
                 "wiredTiger-concurrentTransactions",
+                "repl-lag",
+                "conn-usage",
+                "metrics-operation",
+                "wiredTiger-cache",
                 "metrics-document",
-                "metrics-ttl"
+                "metrics-queryExecutor",
+                "metrics-ttl",
+                "globalLock-activeClients",
+                "globalLock-currentQueue"
             ],
             "alarm": [
 
