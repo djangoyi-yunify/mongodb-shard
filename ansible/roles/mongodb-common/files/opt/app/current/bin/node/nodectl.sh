@@ -934,6 +934,11 @@ msGetServerStatus() {
   echo "$tmpstr"
 }
 
+msGetServerStatusForMonitor() {
+  local tmpstr=$(runMongoCmd "JSON.stringify(db.serverStatus({\"repl\":1}))" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE))
+  echo "$tmpstr"
+}
+
 # calculate replLag, unit: minute
 # secondary's optime - primary's optime
 # if cluster's status is not ok (1 primary, 2 secondary) 
@@ -955,6 +960,19 @@ monitorGetReplLag() {
     fi
   fi
   echo "\"repl-lag\":$res"
+}
+
+# remove " from jq results
+moRmQuotation() {
+  echo $@ | sed 's/"//g'
+}
+
+# calculate timespan, unit: minute
+# scale_factor_when_display=0.1
+moCalcTimespan() {
+  local tmpstr=$(echo $@)
+  local res=$(echo "scale=0;($tmpstr)/6" | sed 's/ /-/g' | bc | sed 's/-//g')
+  echo $res
 }
 
 # unit "%"
@@ -984,7 +1002,7 @@ doWhenMonitorMongos() {
 
 doWhenMonitorRepl() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  local serverStr=$(msGetServerStatus)
+  local serverStr=$(msGetServerStatusForMonitor)
   local cnt=${#milist[@]}
   local tmpstr
   local res
@@ -992,19 +1010,15 @@ doWhenMonitorRepl() {
   local pipep
   local title
   while read line; do
-    title=$(echo $line | cut -d'|' -f1)
-    pipestr=$(echo $line | cut -d'|' -f2)
-    pipep=$(echo $line | cut -d'|' -f3)
+    title=$(echo $line | cut -d'/' -f1)
+    pipestr=$(echo $line | cut -d'/' -f2)
+    pipep=$(echo $line | cut -d'/' -f3)
     tmpstr=$(echo "$serverStr" |jq "$pipep")
     if [ ! -z "$pipestr" ]; then
       tmpstr=$(eval $pipestr $tmpstr)
     fi
     res="$res,\"$title\":$tmpstr"
   done < $REPL_MONITOR_ITEM_FILE
-  # conn-usage
-  #res="$res,$(monitorGetConnUsage {${res:1}})"
-  # repl-lag
-  #res="$res,$(monitorGetReplLag)"
   echo "{${res:1}}"
 }
 

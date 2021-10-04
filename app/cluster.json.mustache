@@ -13,7 +13,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-w577deag"
+            "image": "img-w1l7jg1e"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -174,7 +174,7 @@
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
-                }
+                },
                 "network-bytesIn": {
                     "unit": "",
                     "value_type": "int",
@@ -212,7 +212,7 @@
                     "scale_factor_when_display": 1
                 },
                 "repl-lag": {
-                    "unit": "min",
+                    "unit": "minute",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 0.1
@@ -234,7 +234,7 @@
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
-                }
+                },
                 "wiredTiger-cache-usage": {
                     "unit": "%",
                     "value_type": "int",
@@ -282,17 +282,17 @@
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
-                }
+                },
                 "metrics-ttl-deletedDocuments": {
                     "unit": "",
                     "value_type": "int",
-                    "statistics_type": "latest",
+                    "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
                 "metrics-ttl-passes": {
                     "unit": "",
                     "value_type": "int",
-                    "statistics_type": "latest",
+                    "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
                 "globalLock-activeClients-total": {
@@ -346,7 +346,7 @@
                     "opcountersRepl-update",
                     "opcountersRepl-delete",
                     "opcountersRepl-getmore"
-                ]
+                ],
                 "connections": [
                     "connections-current",
                     "connections-totalCreated",
@@ -391,14 +391,14 @@
                     "metrics-ttl-passes"
                 ],
                 "globalLock-activeClients": [
-                    globalLock-activeClients-total,
-                    globalLock-activeClients-readers,
-                    globalLock-activeClients-writers
+                    "globalLock-activeClients-total",
+                    "globalLock-activeClients-readers",
+                    "globalLock-activeClients-writers"
                 ],
                 "globalLock-currentQueue": [
-                    globalLock-currentQueue-total,
-                    globalLock-currentQueue-readers,
-                    globalLock-currentQueue-writers
+                    "globalLock-currentQueue-total",
+                    "globalLock-currentQueue-readers",
+                    "globalLock-currentQueue-writers"
                 ]
             },
             "display": [
@@ -419,7 +419,11 @@
                 "globalLock-currentQueue"
             ],
             "alarm": [
-
+                "connections-current",
+                "connections-available",
+                "conn-usage",
+                "repl-lag",
+                "wiredTiger-cache-usage"
             ]
         }
     },{
@@ -429,7 +433,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-w577deag"
+            "image": "img-w1l7jg1e"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -481,7 +485,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-w577deag"
+            "image": "img-w1l7jg1e"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
