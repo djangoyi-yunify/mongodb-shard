@@ -13,7 +13,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-w1l7jg1e"
+            "image": "img-93xheu5y"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -433,7 +433,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-w1l7jg1e"
+            "image": "img-93xheu5y"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -477,6 +477,382 @@
             "change_vxnet": {
                 "pre_check": "appctl changeVxnetPreCheck"
             }
+        },
+        "monitor": {
+            "enable": true,
+            "cmd": "appctl monitor",
+            "items": {
+                "opcounters-insert": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-query": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-update": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-delete": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-getmore": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-command": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-insert": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-query": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-update": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-delete": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-getmore": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcountersRepl-command": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "connections-current": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "connections-totalCreated": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "connections-available": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-timedOut": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-noTimeout": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-pinned": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "network-bytesIn": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "network-bytesOut": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "wiredTiger-concurrentTransactions-write-out": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "wiredTiger-concurrentTransactions-write-available": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "wiredTiger-concurrentTransactions-read-out": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "wiredTiger-concurrentTransactions-read-available": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "repl-lag": {
+                    "unit": "minute",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "conn-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "metrics-operation-scanAndOrder": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-operation-writeConflicts": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "wiredTiger-cache-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "wiredTiger-cache-dirty-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "metrics-document-deleted": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-document-inserted": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-document-returned": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-document-updated": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-queryExecutor-scannedKeys": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-queryExecutor-scannedDocs": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-ttl-deletedDocuments": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-ttl-passes": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "moveChunk-donorCount": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-activeClients-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-activeClients-readers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-activeClients-writers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-currentQueue-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-currentQueue-readers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "globalLock-currentQueue-writers": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                }
+            },
+            "groups": {
+                "opcounters": [
+                    "opcounters-insert",
+                    "opcounters-query",
+                    "opcounters-update",
+                    "opcounters-delete",
+                    "opcounters-getmore"
+                ],
+                "opcountersRepl": [
+                    "opcountersRepl-insert",
+                    "opcountersRepl-query",
+                    "opcountersRepl-update",
+                    "opcountersRepl-delete",
+                    "opcountersRepl-getmore"
+                ],
+                "connections": [
+                    "connections-current",
+                    "connections-totalCreated",
+                    "connections-available"
+                ],
+                "metrics-cursor": [
+                    "metrics-cursor-timedOut",
+                    "metrics-cursor-open-noTimeout",
+                    "metrics-cursor-open-pinned",
+                    "metrics-cursor-open-total"
+                ],
+                "network": [
+                    "network-bytesIn",
+                    "network-bytesOut"
+                ],
+                "wiredTiger-concurrentTransactions": [
+                    "wiredTiger-concurrentTransactions-write-out",
+                    "wiredTiger-concurrentTransactions-write-available",
+                    "wiredTiger-concurrentTransactions-read-out",
+                    "wiredTiger-concurrentTransactions-read-available"
+                ],
+                "metrics-operation": [
+                    "metrics-operation-scanAndOrder",
+                    "metrics-operation-writeConflicts"
+                ],
+                "wiredTiger-cache": [
+                    "wiredTiger-cache-usage",
+                    "wiredTiger-cache-dirty-usage"
+                ],
+                "metrics-document": [
+                    "metrics-document-deleted",
+                    "metrics-document-inserted",
+                    "metrics-document-returned",
+                    "metrics-document-updated"
+                ],
+                "metrics-queryExecutor": [
+                    "metrics-queryExecutor-scannedKeys",
+                    "metrics-queryExecutor-scannedDocs"
+                ],
+                "metrics-ttl": [
+                    "metrics-ttl-deletedDocuments",
+                    "metrics-ttl-passes"
+                ],
+                "globalLock-activeClients": [
+                    "globalLock-activeClients-total",
+                    "globalLock-activeClients-readers",
+                    "globalLock-activeClients-writers"
+                ],
+                "globalLock-currentQueue": [
+                    "globalLock-currentQueue-total",
+                    "globalLock-currentQueue-readers",
+                    "globalLock-currentQueue-writers"
+                ]
+            },
+            "display": [
+                "opcounters",
+                "opcountersRepl",
+                "connections",
+                "metrics-cursor",
+                "network",
+                "wiredTiger-concurrentTransactions",
+                "repl-lag",
+                "conn-usage",
+                "metrics-operation",
+                "wiredTiger-cache",
+                "metrics-document",
+                "metrics-queryExecutor",
+                "metrics-ttl",
+                "moveChunk-donorCount",
+                "globalLock-activeClients",
+                "globalLock-currentQueue"
+            ],
+            "alarm": [
+                "connections-current",
+                "connections-available",
+                "conn-usage",
+                "repl-lag",
+                "wiredTiger-cache-usage"
+            ]
         }
     },{
         "role": "mongos_node",
@@ -485,7 +861,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-w1l7jg1e"
+            "image": "img-93xheu5y"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -528,6 +904,168 @@
             "change_vxnet": {
                 "pre_check": "appctl changeVxnetPreCheck"
             }
+        },
+        "monitor": {
+            "enable": true,
+            "cmd": "appctl monitor",
+            "items": {
+                "opcounters-insert": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-query": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-update": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-delete": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-getmore": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "opcounters-command": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "connections-current": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "connections-totalCreated": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "connections-available": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-timedOut": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-multiTarget": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-singleTarget": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-pinned": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "metrics-cursor-open-total": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "network-bytesIn": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "network-bytesOut": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "delta",
+                    "scale_factor_when_display": 1
+                },
+                "conn-usage": {
+                    "unit": "%",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 0.1
+                },
+                "sharding-catalogCache-databaseEntries": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                },
+                "sharding-catalogCache-collectionEntries": {
+                    "unit": "",
+                    "value_type": "int",
+                    "statistics_type": "latest",
+                    "scale_factor_when_display": 1
+                }
+            },
+            "groups": {
+                "opcounters": [
+                    "opcounters-insert",
+                    "opcounters-query",
+                    "opcounters-update",
+                    "opcounters-delete",
+                    "opcounters-getmore"
+                ],
+                "connections": [
+                    "connections-current",
+                    "connections-totalCreated",
+                    "connections-available"
+                ],
+                "metrics-cursor": [
+                    "metrics-cursor-timedOut",
+                    "metrics-cursor-open-multiTarget",
+                    "metrics-cursor-open-singleTarget",
+                    "metrics-cursor-open-pinned",
+                    "metrics-cursor-open-total"
+                ],
+                "network": [
+                    "network-bytesIn",
+                    "network-bytesOut"
+                ],
+                "sharding-catalogCache": [
+                    "sharding-catalogCache-databaseEntries",
+                    "sharding-catalogCache-collectionEntries"
+                ]
+            },
+            "display": [
+                "opcounters",
+                "connections",
+                "metrics-cursor",
+                "network",
+                "conn-usage",
+                "sharding-catalogCache"
+            ],
+            "alarm": [
+                "connections-current",
+                "connections-available",
+                "conn-usage"
+            ]
         }
     }],
     "env": {

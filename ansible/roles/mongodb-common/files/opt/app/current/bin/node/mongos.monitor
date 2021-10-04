@@ -1,0 +1,19 @@
+opcounters-insert//.opcounters.insert
+opcounters-query//.opcounters.query
+opcounters-update//.opcounters.update
+opcounters-delete//.opcounters.delete
+opcounters-getmore//.opcounters.getmore
+opcounters-command//.opcounters.command
+connections-current//.connections.current
+connections-totalCreated//.connections.totalCreated
+connections-available//.connections.available
+metrics-cursor-timedOut/moRmQuotation/.metrics.cursor.timedOut."$numberLong"
+metrics-cursor-open-multiTarget/moRmQuotation/.metrics.cursor.open.multiTarget."$numberLong"
+metrics-cursor-open-singleTarget/moRmQuotation/.metrics.cursor.open.singleTarget."$numberLong"
+metrics-cursor-open-pinned/moRmQuotation/.metrics.cursor.open.pinned."$numberLong"
+metrics-cursor-open-total/moRmQuotation/.metrics.cursor.open.total."$numberLong"
+network-bytesIn/moRmQuotation/.network.bytesIn."$numberLong"
+network-bytesOut/moRmQuotation/.network.bytesOut."$numberLong"
+conn-usage/moCalcPer 2/.connections.current,.connections.current,.connections.available
+sharding-catalogCache-databaseEntries/moRmQuotation/.shardingStatistics.catalogCache.numDatabaseEntries."$numberLong"
+sharding-catalogCache-collectionEntries/moRmQuotation/.shardingStatistics.catalogCache.numCollectionEntries."$numberLong"

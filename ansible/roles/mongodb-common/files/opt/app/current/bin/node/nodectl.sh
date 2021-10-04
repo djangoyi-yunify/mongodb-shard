@@ -13,7 +13,9 @@ DB_QC_LOCAL_PASS_FILE=/data/appctl/data/qc_local_pass
 HOSTS_INFO_FILE=/data/appctl/data/hosts.info
 CONF_INFO_FILE=/data/appctl/data/conf.info
 NODE_FIRST_CREATE_FLAG_FILE=/data/appctl/data/node.first.create.flag
-REPL_MONITOR_ITEM_FILE=/opt/app/current/bin/node/repl.monitor
+CS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/cs.monitor
+MONGOS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/mongos.monitor
+SHARD_MONITOR_ITEM_FILE=/opt/app/current/bin/node/shard.monitor
 
 # runMongoCmd
 # desc run mongo shell
@@ -996,14 +998,21 @@ moCalcPer() {
   echo $res
 }
 
-doWhenMonitorMongos() {
-  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+getMonFilePath() {
+  local monpath
+  if [ $MY_ROLE = "mongos_node" ]; then
+    monpath="$MONGOS_MONITOR_ITEM_FILE"
+  elif [ $MY_ROLE = "cs_node" ]; then
+    monpath="$CS_MONITOR_ITEM_FILE"
+  else
+    monpath="$SHARD_MONITOR_ITEM_FILE"
+  fi
+  echo $monpath
 }
 
-doWhenMonitorRepl() {
-  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+monitor() {
+  local monpath=$(getMonFilePath)
   local serverStr=$(msGetServerStatusForMonitor)
-  local cnt=${#milist[@]}
   local tmpstr
   local res
   local pipestr
@@ -1018,11 +1027,6 @@ doWhenMonitorRepl() {
       tmpstr=$(eval $pipestr $tmpstr)
     fi
     res="$res,\"$title\":$tmpstr"
-  done < $REPL_MONITOR_ITEM_FILE
+  done < $monpath
   echo "{${res:1}}"
-}
-
-monitor() {
-  doWhenMonitorMongos
-  doWhenMonitorRepl
 }
