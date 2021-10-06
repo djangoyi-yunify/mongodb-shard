@@ -3,6 +3,8 @@
 ERR_BALANCER_STOP=201
 ERR_CHGVXNET_PRECHECK=202
 ERR_SCALEIN_SHARD_FORBIDDEN=203
+ERR_SERVICE_STOPPED=204
+ERR_PORT_NOT_LISTENED=205
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -16,6 +18,7 @@ NODE_FIRST_CREATE_FLAG_FILE=/data/appctl/data/node.first.create.flag
 CS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/cs.monitor
 MONGOS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/mongos.monitor
 SHARD_MONITOR_ITEM_FILE=/opt/app/current/bin/node/shard.monitor
+HEALTH_CHECK_FLAG_FILE=/data/appctl/data/health.check.flag
 
 # runMongoCmd
 # desc run mongo shell
@@ -68,6 +71,18 @@ isNodeFirstCreate() {
 
 clearNodeFirstCreateFlag() {
   if [ -f $NODE_FIRST_CREATE_FLAG_FILE ]; then rm -f $NODE_FIRST_CREATE_FLAG_FILE; fi
+}
+
+enableHealthCheck() {
+  touch $HEALTH_CHECK_FLAG_FILE
+}
+
+disableHealthCheck() {
+  rm -f $HEALTH_CHECK_FLAG_FILE
+}
+
+needHealthCheck() {
+  test -f $HEALTH_CHECK_FLAG_FILE
 }
 
 # msIsReplStatusOk
@@ -401,6 +416,7 @@ start() {
   updateHostsInfo
   updateMongoConf
   _start
+  if ! isNodeFirstCreate; then enableHealthCheck; fi
   clearNodeFirstCreateFlag
 }
 
@@ -576,6 +592,7 @@ doWhenMongosInit() {
 init() {
   doWhenReplInit
   doWhenMongosInit
+  enableHealthCheck
 }
 
 isMeMaster() {
@@ -656,6 +673,7 @@ doWhenReplStop() {
 }
 
 stop() {
+  disableHealthCheck
   doWhenMongosStop
   doWhenReplStop
 }
@@ -754,6 +772,8 @@ clusterPreInit() {
   #create config files
   touch $MONGODB_CONF_PATH/mongo.conf
   chown mongod:svc $MONGODB_CONF_PATH/mongo.conf
+  #disable health check
+  disableHealthCheck
 }
 
 changeVxnetPreCheck() {
@@ -941,32 +961,15 @@ msGetServerStatusForMonitor() {
   echo "$tmpstr"
 }
 
-# calculate replLag, unit: minute
-# secondary's optime - primary's optime
-# if cluster's status is not ok (1 primary, 2 secondary) 
-#  replLag is set to ''
-# scale_factor_when_display=0.1
-monitorGetReplLag() {
-  local tmpstr=$(runMongoCmd "JSON.stringify(rs.status().members)" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE))
-  local res
-  local timepri
-  if isMeMaster; then
-    res=0
-  else
-    timepri=$(echo $tmpstr | jq '.[] | select(.stateStr=="PRIMARY") | .optime.ts."$timestamp".t')
-    timeme=$(echo $tmpstr | jq '.[] | select(.name=="'$MY_IP':'$MY_PORT'") | .optime.ts."$timestamp".t')
-    if [ -z "$timepri" ] || [ -z "$timeme" ]; then
-      res=""
-    else
-      res=$(echo "scale=0;($timeme-$timepri)/6" | bc)
-    fi
-  fi
-  echo "\"repl-lag\":$res"
-}
-
 # remove " from jq results
 moRmQuotation() {
   echo $@ | sed 's/"//g'
+}
+
+# remove " from jq results and calculate MB value
+moRmQuotationMB() {
+  local tmpstr=$(echo $@ | sed 's/"//g')
+  echo "scale=0;$tmpstr/1024/1024" | bc
 }
 
 # calculate timespan, unit: minute
@@ -1029,4 +1032,28 @@ monitor() {
     res="$res,\"$title\":$tmpstr"
   done < $monpath
   echo "{${res:1}}"
+}
+
+healthCheck() {
+  log "health checked"
+  if ! needHealthCheck; then log "skip health check"; return 0; fi
+  local srv=$(echo $SERVICES | cut -d'/' -f1).service
+  local port=$(echo $SERVICES | cut -d':' -f2)
+  if ! systemctl is-active $srv -q; then
+    log "$srv has stopped!"
+    return $ERR_SERVICE_STOPPED
+  fi
+  if [ ! $(lsof -b -i -s TCP:LISTEN | grep $port | wc -l) = "1" ]; then
+    log "port $port is not listened!"
+    return $ERR_PORT_NOT_LISTENED
+  fi
+  return 0
+}
+
+revive() {
+  local srv=$(echo $SERVICES | cut -d'/' -f1).service
+  if ! systemctl is-active $srv -q; then
+    log "$srv has been revived!"
+    systemctl restart $srv
+  fi
 }
