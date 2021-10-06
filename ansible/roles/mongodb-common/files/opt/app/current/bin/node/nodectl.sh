@@ -1035,7 +1035,6 @@ monitor() {
 }
 
 healthCheck() {
-  log "health checked"
   if ! needHealthCheck; then log "skip health check"; return 0; fi
   local srv=$(echo $SERVICES | cut -d'/' -f1).service
   local port=$(echo $SERVICES | cut -d':' -f2)
