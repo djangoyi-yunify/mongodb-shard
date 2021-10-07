@@ -532,7 +532,7 @@ admin.createUser(
   {
     user: "$DB_QC_USER",
     pwd: "$(cat $DB_QC_LOCAL_PASS_FILE)",
-    roles: [ { role: "root", db: "admin" } ]
+    roles: [ { role: "root", db: "admin" },{ role: "__system", db: "admin" } ]
   }
 )
 EOF
@@ -566,6 +566,23 @@ msAddShardNodeByGidList() {
   runMongoCmd "$tmpstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
 }
 
+msUpdateQingCloudControl() {
+  local jsstr=$(cat <<EOF
+cfg=db.getSiblingDB("config");
+cfg.QingCloudControl.findAndModify(
+  {
+    query:{_id:"QcCtrlDoc"},
+    update:{\$inc:{counter:1}},
+    new: true,
+    upsert: true,
+    writeConcern:{w:"majority",wtimeout:15000}
+  }
+);
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+}
+
 doWhenReplInit() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
   local slist=($(getInitNodeList))
@@ -576,6 +593,8 @@ doWhenReplInit() {
   retry 60 3 0 msIsHostMaster "$MY_IP:$MY_PORT" -P $MY_PORT
   log "add local sys user"
   retry 60 3 0 msAddLocalSysUser
+  log "update QingCloudControl database"
+  msUpdateQingCloudControl -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   log "init replicaset done"
 }
 
