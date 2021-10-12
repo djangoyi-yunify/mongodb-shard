@@ -6,6 +6,8 @@
         "scale_horizontal",
         "change_vxnet"
     ],
+    "backup_policy": "device",
+    "incremental_backup_supported": false,
     "nodes": [{
         "role": "cs_node",
         "container": {
@@ -13,7 +15,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-kc0jkets"
+            "image": "img-waxzfeph"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -55,6 +57,19 @@
             },
             "change_vxnet": {
                 "pre_check": "appctl changeVxnetPreCheck"
+            },
+            "backup": {
+                "selector": "appctl getBackupNodeId",
+                "cmd": "appctl backup",
+                "with_replica": false,
+                "order": 2,
+                "timeout": 86400
+            },
+            "restore": {
+                "cmd": "appctl restore",
+                "with_replica": false,
+                "order": 1,
+                "timeout": 86400
             }
         },
         "monitor": {
@@ -433,7 +448,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-kc0jkets"
+            "image": "img-waxzfeph"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -476,6 +491,19 @@
             },
             "change_vxnet": {
                 "pre_check": "appctl changeVxnetPreCheck"
+            },
+            "backup": {
+                "selector": "appctl getBackupNodeId",
+                "cmd": "appctl backup",
+                "with_replica": true,
+                "order": 3,
+                "timeout": 86400
+            },
+            "restore": {
+                "cmd": "appctl restore",
+                "with_replica": true,
+                "order": 2,
+                "timeout": 86400
             }
         },
         "monitor": {
@@ -861,7 +889,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-kc0jkets"
+            "image": "img-waxzfeph"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -903,6 +931,19 @@
             },
             "change_vxnet": {
                 "pre_check": "appctl changeVxnetPreCheck"
+            },
+            "backup": {
+                "selector": "appctl getBackupNodeId",
+                "cmd": "appctl backup",
+                "with_replica": false,
+                "order": 1,
+                "timeout": 86400
+            },
+            "restore": {
+                "cmd": "appctl restore",
+                "with_replica": false,
+                "order": 3,
+                "timeout": 86400
             }
         },
         "monitor": {

@@ -124,6 +124,7 @@ createMongoConf() {
   local replication_enableMajorityReadConcern
   local sharding_clusterRole
   local sharding_configDB
+  local read_concern
   if [ $MY_ROLE = "mongos_node" ]; then
     net_port=$(getItemFromFile net_port $CONF_INFO_FILE)
     sharding_configDB=$(getItemFromFile sharding_configDB $CONF_INFO_FILE)
@@ -170,8 +171,10 @@ MONGO_CONF
     replication_enableMajorityReadConcern=$(getItemFromFile replication_enableMajorityReadConcern $CONF_INFO_FILE)
     if [ "$MY_ROLE" = "cs_node" ]; then
       sharding_clusterRole="configsvr"
+      read_concern=""
     else
       sharding_clusterRole="shardsvr"
+      read_concern="enableMajorityReadConcern: $replication_enableMajorityReadConcern"
     fi
     cat > $MONGODB_CONF_PATH/mongo.conf <<MONGO_CONF
 systemLog:
@@ -196,6 +199,7 @@ operationProfiling:
 replication:
   oplogSizeMB: 2048
   replSetName: $replication_replSetName
+  $read_concern
 sharding:
   clusterRole: $sharding_clusterRole
 setParameter:
@@ -1074,4 +1078,89 @@ revive() {
     log "$srv has been revived!"
     systemctl restart $srv
   fi
+}
+
+doWhenBackupMongos() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local ip=$(getIp ${NODE_LIST[0]})
+  # select only one node
+  if [ ! $ip = "$MY_IP" ]; then return 0; fi
+  # stop balancer
+  if retry 1800 3 0 msDisableBalancer -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+    log "disable balancer: succeeded"
+    retry 1800 3 0 msIsBalancerOkForStop -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  else
+    log "disable balancer: failed"
+    return $ERR_BALANCER_STOP
+  fi
+}
+
+doWhenGetBackupNodeIdMongos() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local ip=$(getIp ${NODE_LIST[0]})
+  # select only one node
+  if [ ! $ip = "$MY_IP" ]; then return 0; fi
+  echo $(getNodeId ${NODE_LIST[0]})
+}
+
+doWhenGetBackupNodeIdCs() {
+  if [ ! $MY_ROLE = "cs_node" ]; then return 0; fi
+  local ip=$(getIp ${NODE_LIST[0]})
+  # select only one node
+  if [ ! $ip = "$MY_IP" ]; then return 0; fi
+  local cnt=${#NODE_LIST[@]}
+  local tmpip
+  local res
+  for((i=0;i<$cnt;i++)); do
+    tmpip=$(getIp ${NODE_LIST[i]})
+    if msIsHostHidden "$tmpip:$MY_PORT" -H $MY_IP -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE) >/dev/null 2>&1; then
+      res=$(getNodeId ${NODE_LIST[i]})
+      break
+    fi
+  done
+  echo $res
+}
+
+doWhenGetBackupNodeIdShard() {
+  if [ $MY_ROLE = "cs_node" ] || [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local ip=$(getIp ${INFO_SHARD_1_LIST[0]})
+  if [ ! $ip = "$MY_IP" ]; then return 0; fi
+  local tmplist
+  local glist=($(echo ${INFO_SHARD_GROUP_LIST[@]}))
+  local cnt=${#glist[@]}
+  local subcnt
+  local tmpstr=""
+  local tmpip
+  for((i=0;i<$cnt;i++)); do
+    tmplist=($(eval echo \${INFO_SHARD_${glist[i]}_LIST[@]}))
+    subcnt=${#tmplist[@]}
+    for((j=0;j<$subcnt;j++)); do
+      tmpip=$(getIp ${tmplist[j]})
+      if msIsHostHidden "$tmpip:$INFO_SHARD_PORT" -H $tmpip -P $INFO_SHARD_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE) >/dev/null 2>&1; then
+        tmpstr="$tmpstr,$(getNodeId ${tmplist[j]})"
+        break
+      fi
+    done
+  done
+  tmpstr="${tmpstr:1}"
+  echo $tmpstr
+}
+
+getBackupNodeId() {
+  doWhenGetBackupNodeIdMongos
+  doWhenGetBackupNodeIdCs
+  doWhenGetBackupNodeIdShard
+}
+
+backup() {
+  # back qc_master's old password
+  cp $DB_QC_LOCAL_PASS_FILE $DB_QC_LOCAL_PASS_FILE.old
+  log "$MY_IP for test"
+  
+  # stuff for backup preparation
+  doWhenBackupMongos
+}
+
+restore() {
+  log "here"
 }

@@ -100,6 +100,17 @@ cs_rsname=repl_cs
 {{- end }}
 {{- $mongos_node_list = $tmpval }}
 
+# shard_node origin
+{{- $shard_node_list := "" }}
+{{- $tmpval = "" }}
+{{- range lsdir "/hosts/shard_node" -}}
+  {{- $ip := getv (printf "/hosts/shard_node/%s/ip" .) -}}
+  {{- $sid := getv (printf "/hosts/shard_node/%s/sid" .) -}}
+  {{- $node_id := getv (printf "/hosts/shard_node/%s/node_id" .) -}}
+  {{- $tmpval = printf "%s%s/%s/%s " $tmpval $sid $ip $node_id }}
+{{- end }}
+{{- $shard_node_list = $tmpval }}
+
 # shard_node
 # $1 Gid
 # $2 Gid list
