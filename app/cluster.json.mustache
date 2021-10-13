@@ -15,7 +15,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-waxzfeph"
+            "image": "img-cbkuhfcp"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -448,7 +448,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-waxzfeph"
+            "image": "img-cbkuhfcp"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -495,13 +495,13 @@
             "backup": {
                 "selector": "appctl getBackupNodeId",
                 "cmd": "appctl backup",
-                "with_replica": true,
+                "with_replica": false,
                 "order": 3,
                 "timeout": 86400
             },
             "restore": {
                 "cmd": "appctl restore",
-                "with_replica": true,
+                "with_replica": false,
                 "order": 2,
                 "timeout": 86400
             }
@@ -889,7 +889,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-waxzfeph"
+            "image": "img-cbkuhfcp"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -935,14 +935,13 @@
             "backup": {
                 "selector": "appctl getBackupNodeId",
                 "cmd": "appctl backup",
-                "with_replica": false,
+                "cleanup": "appctl cleanup",
                 "order": 1,
                 "timeout": 86400
             },
             "restore": {
                 "cmd": "appctl restore",
-                "with_replica": false,
-                "order": 3,
+                "order": 1,
                 "timeout": 86400
             }
         },

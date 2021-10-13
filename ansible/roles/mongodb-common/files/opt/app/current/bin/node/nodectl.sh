@@ -1095,6 +1095,15 @@ doWhenBackupMongos() {
   fi
 }
 
+doWhenCleanupMongos() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local ip=$(getIp ${NODE_LIST[0]})
+  # select only one node
+  if [ ! $ip = "$MY_IP" ]; then return 0; fi
+  # start balancer
+  retry 1800 3 0 msEnableBalancer -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
 doWhenGetBackupNodeIdMongos() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
   local ip=$(getIp ${NODE_LIST[0]})
@@ -1123,30 +1132,21 @@ doWhenGetBackupNodeIdCs() {
 
 doWhenGetBackupNodeIdShard() {
   if [ $MY_ROLE = "cs_node" ] || [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  local ip=$(getIp ${INFO_SHARD_1_LIST[0]})
+  if [ ! $MY_ROLE = "shard_node" ]; then return 0; fi
+  local ip=$(getIp ${SHARD_NODE_LIST[0]})
   if [ ! $ip = "$MY_IP" ]; then return 0; fi
-  local tmplist
-  local glist=($(echo ${INFO_SHARD_GROUP_LIST[@]}))
-  local cnt=${#glist[@]}
-  local subcnt
+  local cnt=${#SHARD_NODE_LIST[@]}
   local tmpstr=""
   local tmpip
   for((i=0;i<$cnt;i++)); do
-    tmplist=($(eval echo \${INFO_SHARD_${glist[i]}_LIST[@]}))
-    subcnt=${#tmplist[@]}
-    for((j=0;j<$subcnt;j++)); do
-      tmpip=$(getIp ${tmplist[j]})
-      if msIsHostHidden "$tmpip:$INFO_SHARD_PORT" -H $tmpip -P $INFO_SHARD_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE) >/dev/null 2>&1; then
-        tmpstr="$tmpstr,$(getNodeId ${tmplist[j]})"
-        break
-      fi
-    done
+    tmpstr="$tmpstr,$(getNodeId ${SHARD_NODE_LIST[i]})"
   done
   tmpstr="${tmpstr:1}"
   echo $tmpstr
 }
 
 getBackupNodeId() {
+  log "come here"
   doWhenGetBackupNodeIdMongos
   doWhenGetBackupNodeIdCs
   doWhenGetBackupNodeIdShard
@@ -1161,6 +1161,90 @@ backup() {
   doWhenBackupMongos
 }
 
+cleanup() {
+  log "$MY_IP for test"
+  # stuff for backup cleanup
+  doWhenCleanupMongos
+}
+
+preRestore() {
+  disableHealthCheck
+  if [ $MY_ROLE = "mongos_node" ]; then
+    systemctl stop mongos.service || :
+  else
+    systemctl stop mongod.service || :
+  fi
+  # repl.key
+  echo "$GLOBAL_UUID" | base64 > "$MONGODB_CONF_PATH/repl.key"
+  chown mongod:svc $MONGODB_CONF_PATH/repl.key
+  chmod 0400 $MONGODB_CONF_PATH/repl.key
+  #qc_cluster_pass
+  local encrypted=$(echo -n ${CLUSTER_ID}${GLOBAL_UUID} | sha256sum | base64)
+  echo ${encrypted:0:16} > $DB_QC_CLUSTER_PASS_FILE
+  #qc_local_pass
+  encrypted=$(echo -n ${GLOBAL_UUID}${CLUSTER_ID} | sha256sum | base64)
+  echo ${encrypted:16:16} > $DB_QC_LOCAL_PASS_FILE
+}
+
+doWhenRestoreCs() {
+  if [ ! $MY_ROLE = "cs_node" ]; then return 0; fi
+  local cnt=${#NODE_LIST[@]}
+  local ip=$(getIp ${NODE_LIST[0]})
+  if [ ! $ip = "$MY_IP" ]; then
+    rm -rf $MONGODB_DATA_PATH/*
+    _start
+    return 0
+  fi
+
+  # start mongod in admin mode
+  shellStartMongodForAdmin
+
+  local jsstr
+  retry 60 3 0 msGetHostDbVersion -P $NET_MAINTAIN_PORT
+
+  # change qc_master's passowrd
+  local newpass=$(cat $DB_QC_LOCAL_PASS_FILE)
+  jsstr=$(cat <<EOF
+mydb = db.getSiblingDB("admin");
+mydb.changeUserPassword("$DB_QC_USER", "$newpass");
+EOF
+  )
+  runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
+
+  # drop local database
+  jsstr=$(cat <<EOF
+mydb = db.getSiblingDB("local");
+mydb.dropDatabase();
+EOF
+  )
+  runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
+
+  # update shard info
+  local tmpstr
+  local tmprepl
+  local newshardlist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE.new))
+  local newport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE.new)
+  cnt=${#newshardlist[@]}
+  for((i=0;i<$cnt;i+=3)); do
+    tmpstr=""
+    tmprepl=shard_$((i/3))
+    for((j=0;j<2;j++)); do
+      tmpstr="$tmpstr,$(getIp ${newshardlist[$((i+j))]}):$newport"
+    done
+    tmpstr="$tmprepl/${tmpstr:1}"
+    jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('config')
+mydb.shards.updateOne({"_id": "$tmprepl"}, {\$set: {"host": "$tmpstr"}})
+EOF
+    )
+    runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
+  done
+
+  # stop mongod in admin mode
+  shellStopMongodForAdmin
+}
+
 restore() {
-  log "here"
+  preRestore
+  doWhenRestoreCs
 }
