@@ -252,8 +252,8 @@
                 },
                 {
                     "key": "conf.storage.engine",
-                    "label": "storage.engine",
-                    "description": "storage.engine",
+                    "label": "storage.engine.label",
+                    "description": "storage.engine.description",
                     "type": "string",
                     "default": "wiredTiger",
                     "range": ["wiredTiger"],
@@ -266,15 +266,15 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port",
-                        "description": "net.port",
+                        "label": "net.port.mongos.label",
+                        "description": "net.port.mongos.description",
                         "type": "integer",
                         "default": 27018,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis",
-                        "description": "setParameter.cursorTimeoutMillis",
+                        "label": "setParameter.cursorTimeoutMillis.mongos.label",
+                        "description": "setParameter.cursorTimeoutMillis.mongos.description",
                         "type": "integer",
                         "default": 600000,
                         "required": "yes"
@@ -286,31 +286,31 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port",
-                        "description": "net.port",
+                        "label": "net.port.cs_node.label",
+                        "description": "net.port.cs_node.description",
                         "type": "integer",
                         "default": 27019,
                         "changeable": false,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis",
-                        "description": "setParameter.cursorTimeoutMillis",
+                        "label": "setParameter.cursorTimeoutMillis.cs_node.label",
+                        "description": "setParameter.cursorTimeoutMillis.cs_node.description",
                         "type": "integer",
                         "default": 600000,
                         "required": "yes"
                     }, {
                         "key": "conf.operationProfiling.mode",
-                        "label": "operationProfiling.mode",
-                        "description": "operationProfiling.mode",
+                        "label": "operationProfiling.mode.cs_node.label",
+                        "description": "operationProfiling.mode.cs_node.description",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
                         "required": "yes"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
-                        "label": "operationProfiling.slowOpThresholdMs",
-                        "description": "operationProfiling.slowOpThresholdMs",
+                        "label": "operationProfiling.slowOpThresholdMs.cs_node.label",
+                        "description": "operationProfiling.slowOpThresholdMs.cs_node.description",
                         "type": "integer",
                         "default": 100,
                         "required": "yes"
@@ -322,38 +322,38 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port",
-                        "description": "net.port",
+                        "label": "net.port.shard_node.label",
+                        "description": "net.port.shard_node.description",
                         "type": "integer",
                         "default": 27018,
                         "changeable": false,
                         "required": "yes"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis",
-                        "description": "setParameter.cursorTimeoutMillis",
+                        "label": "setParameter.cursorTimeoutMillis.shard_node.label",
+                        "description": "setParameter.cursorTimeoutMillis.shard_node.description",
                         "type": "integer",
                         "default": 600000,
                         "required": "yes"
                     }, {
                         "key": "conf.operationProfiling.mode",
-                        "label": "operationProfiling.mode",
-                        "description": "operationProfiling.mode",
+                        "label": "operationProfiling.mode.shard_node.label",
+                        "description": "operationProfiling.mode.shard_node.description",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
                         "required": "yes"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
-                        "label": "operationProfiling.slowOpThresholdMs",
-                        "description": "operationProfiling.slowOpThresholdMs",
+                        "label": "operationProfiling.slowOpThresholdMs.shard_node.label",
+                        "description": "operationProfiling.slowOpThresholdMs.shard_node.description",
                         "type": "integer",
                         "default": 100,
                         "required": "yes"
                     }, {
                         "key": "conf.replication.enableMajorityReadConcern",
-                        "label": "replication.enableMajorityReadConcern",
-                        "description": "replication.enableMajorityReadConcern1",
+                        "label": "replication.enableMajorityReadConcern.shard_node.label",
+                        "description": "replication.enableMajorityReadConcern.shard_node.description",
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
