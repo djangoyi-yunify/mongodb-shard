@@ -19,6 +19,7 @@ CS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/cs.monitor
 MONGOS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/mongos.monitor
 SHARD_MONITOR_ITEM_FILE=/opt/app/current/bin/node/shard.monitor
 HEALTH_CHECK_FLAG_FILE=/data/appctl/data/health.check.flag
+BACKUP_FLAG_FILE=/data/appctl/data/backup.flag
 
 # runMongoCmd
 # desc run mongo shell
@@ -962,6 +963,11 @@ checkConfdChange() {
     return 0
   fi
 
+  if [ -f $BACKUP_FLAG_FILE ]; then
+    log "restore from backup, skipping"
+    return 0
+  fi
+
   if [ $VERTICAL_SCALING_FLAG = "true" ] || [ $ADDING_HOSTS_FLAG = "true" ] || [ $DELETING_HOSTS_FLAG = "true" ] || [ $CHANGE_VXNET_FLAG = "true" ]; then return 0; fi
   local sstatus=$(getScalingStatus)
   case $sstatus in
@@ -1146,23 +1152,29 @@ doWhenGetBackupNodeIdShard() {
 }
 
 getBackupNodeId() {
-  log "come here"
+  log "info"
   doWhenGetBackupNodeIdMongos
   doWhenGetBackupNodeIdCs
   doWhenGetBackupNodeIdShard
 }
 
 backup() {
+  log "info"
+  # set backup flag
+  touch $BACKUP_FLAG_FILE
+
   # back qc_master's old password
   cp $DB_QC_LOCAL_PASS_FILE $DB_QC_LOCAL_PASS_FILE.old
-  log "$MY_IP for test"
   
   # stuff for backup preparation
   doWhenBackupMongos
 }
 
 cleanup() {
-  log "$MY_IP for test"
+  log "info"
+  # reset backup flag
+  rm -rf $BACKUP_FLAG_FILE
+
   # stuff for backup cleanup
   doWhenCleanupMongos
 }
@@ -1188,6 +1200,9 @@ preRestore() {
 
 doWhenRestoreCs() {
   if [ ! $MY_ROLE = "cs_node" ]; then return 0; fi
+  # sync from host.info.new
+  updateHostsInfo
+
   local cnt=${#NODE_LIST[@]}
   local ip=$(getIp ${NODE_LIST[0]})
   if [ ! $ip = "$MY_IP" ]; then
@@ -1242,9 +1257,47 @@ EOF
 
   # stop mongod in admin mode
   shellStopMongodForAdmin
+
+  # start mongod in normal mode
+  _start
+
+  # waiting for mongod status ok
+  retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+
+  # init repl
+  jsstr=$(cat <<EOF
+rs.initiate(
+  {
+    _id: "$RS_NAME",
+    members:[{_id: 0, host: "$MY_IP:$MY_PORT", priority: 2}]
+  }
+);
+EOF
+  )
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+
+  # add other members
+  cnt=${#NODE_LIST[@]}
+  jsstr=""
+  for((i=1;i<$cnt;i++)); do
+    if [ $i -eq $((cnt-1)) ]; then
+      tmpstr="{host:\"$(getIp ${NODE_LIST[i]}):$MY_PORT\",priority: 0, hidden: true}"
+    else
+      tmpstr="{host:\"$(getIp ${NODE_LIST[i]}):$MY_PORT\",priority: 1}"
+    fi
+    jsstr="$jsstr;rs.add($tmpstr)"
+  done
+  jsstr="${jsstr:1};"
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+}
+
+postRestore() {
+  rm -rf $BACKUP_FLAG_FILE
+  enableHealthCheck
 }
 
 restore() {
   preRestore
   doWhenRestoreCs
+  postRestore
 }

@@ -15,7 +15,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-cbkuhfcp"
+            "image": "img-woa3mjri"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -61,6 +61,7 @@
             "backup": {
                 "selector": "appctl getBackupNodeId",
                 "cmd": "appctl backup",
+                "cleanup": "appctl cleanup",
                 "with_replica": false,
                 "order": 2,
                 "timeout": 86400
@@ -448,7 +449,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-cbkuhfcp"
+            "image": "img-woa3mjri"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -495,6 +496,7 @@
             "backup": {
                 "selector": "appctl getBackupNodeId",
                 "cmd": "appctl backup",
+                "cleanup": "appctl cleanup",
                 "with_replica": false,
                 "order": 3,
                 "timeout": 86400
@@ -889,7 +891,7 @@
             "prefer_type": "lxc",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-cbkuhfcp"
+            "image": "img-woa3mjri"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
