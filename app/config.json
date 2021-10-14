@@ -353,7 +353,7 @@
                     }, {
                         "key": "conf.replication.enableMajorityReadConcern",
                         "label": "replication.enableMajorityReadConcern",
-                        "description": "replication.enableMajorityReadConcern",
+                        "description": "replication.enableMajorityReadConcern1",
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
