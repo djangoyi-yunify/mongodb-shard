@@ -258,7 +258,7 @@ doWhenMongosPreStart() {
 
 MONGOD_BIN=/opt/mongodb/current/bin/mongod
 shellStartMongodForAdmin() {
-  runuser mongod -g svc -s "/bin/bash" -c "$MONGOD_BIN -f $MONGODB_CONF_PATH/mongo-admin.conf"
+  runuser mongod -g svc -s "/bin/bash" -c "$MONGOD_BIN -f $MONGODB_CONF_PATH/mongo-admin.conf --setParameter disableLogicalSessionCacheRefresh=true"
 }
 
 shellStopMongodForAdmin() {
@@ -1198,8 +1198,49 @@ preRestore() {
   echo ${encrypted:16:16} > $DB_QC_LOCAL_PASS_FILE
 }
 
-doWhenRestoreCs() {
+restoreCsShardInfo() {
   if [ ! $MY_ROLE = "cs_node" ]; then return 0; fi
+  local tmpstr
+  local tmprepl
+  local newshardlist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE.new))
+  local newport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE.new)
+  local cnt=${#newshardlist[@]}
+  for((i=0;i<$cnt;i+=3)); do
+    tmpstr=""
+    tmprepl=shard_$((i/3))
+    for((j=0;j<2;j++)); do
+      tmpstr="$tmpstr,$(getIp ${newshardlist[$((i+j))]}):$newport"
+    done
+    tmpstr="$tmprepl/${tmpstr:1}"
+    jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('config')
+mydb.shards.updateOne({"_id": "$tmprepl"}, {\$set: {"host": "$tmpstr"}})
+EOF
+    )
+    runMongoCmd "$jsstr" $@
+  done
+}
+
+restoreShardShardInfo() {
+  if [ $MY_ROLE = "cs_node" ]; then return 0; fi
+  local tmpstr
+  local newshardlist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE.new))
+  local newport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE.new)
+  local cnt=${#newshardlist[@]}
+  for((i=0;i<2;i++)); do
+    tmpstr="$tmpstr,$(getIp ${newshardlist[i]}):$newport"
+  done
+  tmpstr="repl_cs/${tmpstr:1}"
+  jsstr=$(cat <<EOF
+mydb = db.getSiblingDB('admin')
+mydb.system.version.updateOne({"_id": "shardIdentity"}, {\$set: {"configsvrConnectionString": "$tmpstr"}})
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+}
+
+doWhenRestoreRepl() {
+  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
   # sync from host.info.new
   updateHostsInfo
 
@@ -1234,26 +1275,8 @@ EOF
   )
   runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
 
-  # update shard info
-  local tmpstr
-  local tmprepl
-  local newshardlist=($(getItemFromFile EXT_LIST $HOSTS_INFO_FILE.new))
-  local newport=$(getItemFromFile EXT_PORT $HOSTS_INFO_FILE.new)
-  cnt=${#newshardlist[@]}
-  for((i=0;i<$cnt;i+=3)); do
-    tmpstr=""
-    tmprepl=shard_$((i/3))
-    for((j=0;j<2;j++)); do
-      tmpstr="$tmpstr,$(getIp ${newshardlist[$((i+j))]}):$newport"
-    done
-    tmpstr="$tmprepl/${tmpstr:1}"
-    jsstr=$(cat <<EOF
-mydb = db.getSiblingDB('config')
-mydb.shards.updateOne({"_id": "$tmprepl"}, {\$set: {"host": "$tmpstr"}})
-EOF
-    )
-    runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
-  done
+  restoreCsShardInfo -P $NET_MAINTAIN_PORT
+  restoreShardShardInfo -P $NET_MAINTAIN_PORT
 
   # stop mongod in admin mode
   shellStopMongodForAdmin
@@ -1298,6 +1321,6 @@ postRestore() {
 
 restore() {
   preRestore
-  doWhenRestoreCs
+  doWhenRestoreRepl
   postRestore
 }
