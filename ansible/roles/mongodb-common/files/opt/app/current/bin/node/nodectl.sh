@@ -5,6 +5,7 @@ ERR_CHGVXNET_PRECHECK=202
 ERR_SCALEIN_SHARD_FORBIDDEN=203
 ERR_SERVICE_STOPPED=204
 ERR_PORT_NOT_LISTENED=205
+ERR_NOTVALID_SHARD_RESTORE=206
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -1239,10 +1240,17 @@ EOF
   runMongoCmd "$jsstr" $@
 }
 
+isValidShardRestore() {
+  if [ $MY_ROLE = "cs_node" ]; then return 0; fi
+  test $(getItemFromFile replication_replSetName $CONF_INFO_FILE.new) = $(getItemFromFile replication_replSetName $CONF_INFO_FILE)
+}
+
 doWhenRestoreRepl() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  # sync from host.info.new
+  if ! isValidShardRestore; then return $ERR_NOTVALID_SHARD_RESTORE; fi
+  # sync from host.info.new & recreate mongo conf
   updateHostsInfo
+  updateMongoConf
 
   local cnt=${#NODE_LIST[@]}
   local ip=$(getIp ${NODE_LIST[0]})
@@ -1314,6 +1322,15 @@ EOF
   runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
 }
 
+doWhenRestoreMongos() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  # sync from host.info.new & recreate mongo conf
+  updateHostsInfo
+  updateMongoConf
+
+  _start
+}
+
 postRestore() {
   rm -rf $BACKUP_FLAG_FILE
   enableHealthCheck
@@ -1321,6 +1338,7 @@ postRestore() {
 
 restore() {
   preRestore
+  doWhenRestoreMongos
   doWhenRestoreRepl
   postRestore
 }
