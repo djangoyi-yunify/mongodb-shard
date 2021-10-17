@@ -62,6 +62,10 @@ getNodeId() {
   echo $(echo $1 | cut -d'/' -f3)
 }
 
+getGid() {
+  echo $(echo $1 | cut -d'/' -f4)
+}
+
 getItemFromFile() {
   local res=$(cat $2 | sed '/^'$1'=/!d;s/^'$1'=//')
   echo "$res"
@@ -1239,6 +1243,20 @@ preRestore() {
   echo ${encrypted:16:16} > $DB_QC_LOCAL_PASS_FILE
 }
 
+getShardReplName() {
+  local glist=($(getItemFromFile SHARD_GROUP_LIST $HOSTS_INFO_FILE.new))
+  local gid=$(getGid $1)
+  local cnt=${#glist[@]}
+  local res
+  for((i=0;i<$cnt;i++)); do
+    if [ ${glist[i]} = $gid ]; then
+      res=$i
+      break
+    fi
+  done
+  echo "shard_$res"
+}
+
 restoreCsShardInfo() {
   if [ ! $MY_ROLE = "cs_node" ]; then return 0; fi
   local tmpstr
@@ -1248,7 +1266,7 @@ restoreCsShardInfo() {
   local cnt=${#newshardlist[@]}
   for((i=0;i<$cnt;i+=3)); do
     tmpstr=""
-    tmprepl=shard_$((i/3))
+    tmprepl=$(getShardReplName ${newshardlist[i]})
     for((j=0;j<2;j++)); do
       tmpstr="$tmpstr,$(getIp ${newshardlist[$((i+j))]}):$newport"
     done
@@ -1369,6 +1387,21 @@ doWhenRestoreMongos() {
   updateMongoConf
 
   _start
+  local slist=($(getInitNodeList))
+  if [ ! $MY_IP = $(getIp ${slist[0]}) ]; then return 0; fi
+  # change user root's password
+  local user_pass=$(getItemFromFile user_pass $CONF_INFO_FILE.new)
+  user_pass=$(echo $user_pass | sed 's/"/\\"/g')
+  jsstr=$(cat <<EOF
+admin = db.getSiblingDB("admin")
+admin.changeUserPassword("root", "$user_pass")
+EOF
+      )
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  log "user root's password has been changed"
+
+  # start balancer
+  msEnableBalancer -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
 }
 
 postRestore() {
