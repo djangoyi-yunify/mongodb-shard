@@ -63,7 +63,7 @@ getNodeId() {
 }
 
 getItemFromFile() {
-  local res=$(cat $2 | sed '/^'$1'=/!d;s/.*=//')
+  local res=$(cat $2 | sed '/^'$1'=/!d;s/^'$1'=//')
   echo "$res"
 }
 
@@ -546,6 +546,23 @@ EOF
   runMongoCmd "$jsstr" -P $MY_PORT
 }
 
+msAddUserRoot() {
+  local user_pass=$(getItemFromFile user_pass $CONF_INFO_FILE)
+  user_pass=$(echo $user_pass | sed 's/"/\\"/g')
+  local jsstr=$(cat <<EOF
+admin = db.getSiblingDB("admin")
+admin.createUser(
+  {
+    user: "root",
+    pwd: "$user_pass",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+}
+
 # run at mongos
 msAddShardNodeByGidList() {
   local glist=($(echo $@))
@@ -611,6 +628,9 @@ doWhenMongosInit() {
   log "init shard cluster begin ..."
   retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   retry 60 3 0 msAddShardNodeByGidList ${INFO_SHARD_GROUP_LIST[@]}
+  log "add user: root"
+  retry 60 3 0 runMongoCmd "sh.status()" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  retry 60 3 0 msAddUserRoot -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   log "init shard cluster done"
 }
 
@@ -828,7 +848,10 @@ getScalingStatus() {
 doWhenMongosConfChanged() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
   local jsstr
+  local tmpcnt
   local setParameter_cursorTimeoutMillis
+  local user_pass
+  local slist
   if ! diff $HOSTS_INFO_FILE $HOSTS_INFO_FILE.new; then
     # net.port, perhaps include setParameter.cursorTimeoutMillis
     # restart mongos
@@ -837,7 +860,24 @@ doWhenMongosConfChanged() {
     updateMongoConf
     systemctl restart mongos.service
   elif ! diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then
-    # only setParameter.cursorTimeoutMillis
+    # change root's password
+    tmpcnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep user_pass | wc -l) || :
+    if (($tmpcnt > 0)); then
+      cat $CONF_INFO_FILE.new > $CONF_INFO_FILE
+      slist=($(getInitNodeList))
+      if [ ! $(getIp ${slist[0]}) = "$MY_IP" ]; then log "$MY_ROLE: skip changing user pass"; return 0; fi
+      user_pass=$(getItemFromFile user_pass $CONF_INFO_FILE.new)
+      user_pass=$(echo $user_pass | sed 's/"/\\"/g')
+      jsstr=$(cat <<EOF
+admin = db.getSiblingDB("admin")
+admin.changeUserPassword("root", "$user_pass")
+EOF
+      )
+      runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+      log "user root's password has been changed"
+      return 0
+    fi
+    # setParameter.cursorTimeoutMillis
     log "$MY_ROLE: change cursorTimeoutMillis"
     updateMongoConf
     setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE)

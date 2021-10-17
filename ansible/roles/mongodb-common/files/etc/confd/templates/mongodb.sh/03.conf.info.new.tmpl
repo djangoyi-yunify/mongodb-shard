@@ -18,6 +18,7 @@ flush > /data/appctl/data/conf.info.new << CONF_INFO_NEW
 replication_replSetName=$host_repl_name
 {{- else }}
 sharding_configDB=$(getShardingConfigDBString)
+user_pass={{ getv "/env/conf.userPass" }}
 {{- end }}
 storage_engine={{ getv "/env/conf.storage.engine" }}
 {{- $tmpval = $nodeRole }}
