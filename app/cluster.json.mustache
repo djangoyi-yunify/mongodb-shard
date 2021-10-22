@@ -11,8 +11,7 @@
     "nodes": [{
         "role": "cs_node",
         "container": {
-            "type":"lxc",
-            "prefer_type": "lxc",
+            "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
             "image": "img-jz1vnuni"
@@ -445,15 +444,10 @@
     },{
         "role": "shard_node",
         "container": {
-            "type":"lxc",
-            "prefer_type": "lxc",
+            "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-<<<<<<< HEAD
             "image": "img-jz1vnuni"
-=======
-            "image": "img-mfb72c2c"
->>>>>>> 95911f690e877add1fb16a0c0e070c94b13ba343
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -891,15 +885,10 @@
     },{
         "role": "mongos_node",
         "container": {
-            "type":"lxc",
-            "prefer_type": "lxc",
+            "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-<<<<<<< HEAD
             "image": "img-jz1vnuni"
-=======
-            "image": "img-mfb72c2c"
->>>>>>> 95911f690e877add1fb16a0c0e070c94b13ba343
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
