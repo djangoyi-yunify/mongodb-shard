@@ -1116,7 +1116,7 @@ healthCheck() {
     log "$srv has stopped!"
     return $ERR_SERVICE_STOPPED
   fi
-  if [ ! $(lsof -b -i -s TCP:LISTEN | grep $port | wc -l) = "1" ]; then
+  if [ ! $(lsof -b -i -s TCP:LISTEN | grep ':'$port | wc -l) = "1" ]; then
     log "port $port is not listened!"
     return $ERR_PORT_NOT_LISTENED
   fi
