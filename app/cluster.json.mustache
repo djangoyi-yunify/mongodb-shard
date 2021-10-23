@@ -7,14 +7,15 @@
         "change_vxnet"
     ],
     "backup_policy": "device",
-    "incremental_backup_supported": false,
+    "incremental_backup_supported": true,
+    "multi_zone_policy": "round_robin",
     "nodes": [{
         "role": "cs_node",
         "container": {
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-jz1vnuni"
+            "image": "img-vz5p0q56"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -447,7 +448,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-jz1vnuni"
+            "image": "img-vz5p0q56"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -888,7 +889,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-jz1vnuni"
+            "image": "img-vz5p0q56"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},

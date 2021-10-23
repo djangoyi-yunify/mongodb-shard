@@ -1,0 +1,14 @@
+/data/mongodb-logs/mongo.log {
+  daily
+  size 50M
+  rotate 10
+  missingok
+  compress
+  dateext
+  notifempty
+  create 640 mongod svc
+  sharedscripts
+  postrotate
+    /bin/kill -SIGUSR1 $(/bin/pidof mongos || /bin/pidof mongod) >/dev/null 2>&1
+  endscript
+}
