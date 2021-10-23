@@ -15,7 +15,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-vz5p0q56"
+            "image": "img-buex7vkg"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -448,7 +448,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-vz5p0q56"
+            "image": "img-buex7vkg"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -889,7 +889,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-vz5p0q56"
+            "image": "img-buex7vkg"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -1117,11 +1117,13 @@
         "cs_node.conf.setParameter.cursorTimeoutMillis": {{env.cs_node.conf.setParameter.cursorTimeoutMillis}},
         "cs_node.conf.operationProfiling.mode": {{env.cs_node.conf.operationProfiling.mode}},
         "cs_node.conf.operationProfiling.slowOpThresholdMs": {{env.cs_node.conf.operationProfiling.slowOpThresholdMs}},
+        "cs_node.conf.replication.oplogSizeMB": {{env.cs_node.conf.replication.oplogSizeMB}},
         "shard_node.conf.net.port": {{env.shard_node.conf.net.port}},
         "shard_node.conf.setParameter.cursorTimeoutMillis": {{env.shard_node.conf.setParameter.cursorTimeoutMillis}},
         "shard_node.conf.operationProfiling.mode": {{env.shard_node.conf.operationProfiling.mode}},
         "shard_node.conf.operationProfiling.slowOpThresholdMs": {{env.shard_node.conf.operationProfiling.slowOpThresholdMs}},
-        "shard_node.conf.replication.enableMajorityReadConcern": {{env.shard_node.conf.replication.enableMajorityReadConcern}}
+        "shard_node.conf.replication.enableMajorityReadConcern": {{env.shard_node.conf.replication.enableMajorityReadConcern}},
+        "shard_node.conf.replication.oplogSizeMB": {{env.shard_node.conf.replication.oplogSizeMB}}
     },
     "health_check":{
       "enable": true,

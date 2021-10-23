@@ -6,6 +6,7 @@ ERR_SCALEIN_SHARD_FORBIDDEN=203
 ERR_SERVICE_STOPPED=204
 ERR_PORT_NOT_LISTENED=205
 ERR_NOTVALID_SHARD_RESTORE=206
+ERR_INVALID_PARAMS_MONGOCMD=207
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -33,6 +34,7 @@ runMongoCmd() {
   local jsstr="$1"
   
   shift
+  if [ $(($# % 2)) -ne 0 ]; then log "Invalid runMongoCmd params"; return $ERR_INVALID_PARAMS_MONGOCMD; fi
   while [ $# -gt 0 ]; do
     case $1 in
       "-u") cmd="$cmd --authenticationDatabase admin --username $2";;
@@ -175,6 +177,7 @@ MONGO_CONF
     operationProfiling_mode=$(getItemFromFile operationProfiling_mode $CONF_INFO_FILE)
     operationProfiling_slowOpThresholdMs=$(getItemFromFile operationProfiling_slowOpThresholdMs $CONF_INFO_FILE)
     replication_enableMajorityReadConcern=$(getItemFromFile replication_enableMajorityReadConcern $CONF_INFO_FILE)
+    replication_oplogSizeMB=$(getItemFromFile replication_oplogSizeMB $CONF_INFO_FILE)
     if [ "$MY_ROLE" = "cs_node" ]; then
       sharding_clusterRole="configsvr"
       read_concern=""
@@ -203,7 +206,7 @@ operationProfiling:
   mode: $operationProfiling_mode
   slowOpThresholdMs: $operationProfiling_slowOpThresholdMs
 replication:
-  oplogSizeMB: 2048
+  oplogSizeMB: $replication_oplogSizeMB
   replSetName: $replication_replSetName
   $read_concern
 sharding:
@@ -931,6 +934,17 @@ getOperationProfilingModeCode() {
   echo $res
 }
 
+# change oplogSize
+msReplChangeOplogSize() {
+  local replication_oplogSizeMB=$(getItemFromFile replication_oplogSizeMB $CONF_INFO_FILE.new)
+  local jsstr=$(cat <<EOF
+db.adminCommand({replSetResizeOplog: 1, size: $replication_oplogSizeMB})
+EOF
+  )
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  log "replication.oplogSizeMB changed"
+}
+
 # change conf according to $CONF_INFO_FILE.new
 msReplChangeConf() {
   local tmpcnt
@@ -939,6 +953,12 @@ msReplChangeConf() {
   local operationProfiling_mode
   local operationProfiling_mode_code
   local operationProfiling_slowOpThresholdMs
+
+  # replication_oplogSizeMB
+  tmpcnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep oplogSizeMB | wc -l) || :
+  if (($tmpcnt > 0)); then
+    msReplChangeOplogSize
+  fi
 
   # setParameter_cursorTimeoutMillis
   tmpcnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep setParameter | wc -l) || :
@@ -979,11 +999,21 @@ doWhenReplConfChanged() {
   if diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then return 0; fi
   local rlist=($(getRollingList))
   local cnt=${#rlist[@]}
+  local tmpcnt
   local tmpip
   tmpip=$(getIp ${rlist[0]})
   if [ ! $tmpip = "$MY_IP" ]; then log "$MY_ROLE: skip changing configue"; return 0; fi
 
   if isMongodNeedRestart; then
+    # oplogSizeMB check first
+    tmpcnt=$(diff $CONF_INFO_FILE $CONF_INFO_FILE.new | grep oplogSizeMB | wc -l) || :
+    if (($tmpcnt > 0)); then
+      for((i=0;i<$cnt;i++)); do
+        tmpip=$(getIp ${rlist[i]})
+        ssh root@$tmpip "appctl msReplChangeOplogSize"
+      done
+    fi
+
     log "rolling restart mongod.service"
     for((i=0;i<$cnt;i++)); do
       tmpip=$(getIp ${rlist[i]})

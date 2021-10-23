@@ -336,6 +336,13 @@
                         "type": "integer",
                         "default": 100,
                         "required": "yes"
+                    }, {
+                        "key": "conf.replication.oplogSizeMB",
+                        "label": "replication.oplogSizeMB.cs_node.label",
+                        "description": "replication.oplogSizeMB.cs_node.description",
+                        "type": "integer",
+                        "default": 2048,
+                        "required": "yes"
                     }]
                 },
                 {
@@ -379,6 +386,13 @@
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
+                        "required": "yes"
+                    }, {
+                        "key": "conf.replication.oplogSizeMB",
+                        "label": "replication.oplogSizeMB.shard_node.label",
+                        "description": "replication.oplogSizeMB.shard_node.description",
+                        "type": "integer",
+                        "default": 2048,
                         "required": "yes"
                     }]
                 }
