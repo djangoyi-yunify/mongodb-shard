@@ -7,6 +7,7 @@ ERR_SERVICE_STOPPED=204
 ERR_PORT_NOT_LISTENED=205
 ERR_NOTVALID_SHARD_RESTORE=206
 ERR_INVALID_PARAMS_MONGOCMD=207
+ERR_REPL_NOT_HEALTH=208
 
 # path info
 MONGODB_DATA_PATH=/data/mongodb-data
@@ -46,6 +47,12 @@ runMongoCmd() {
   done
 
   timeout --preserve-status 5 $cmd --eval "$jsstr"
+}
+
+APPCTL_CMD_PATH=/usr/bin/appctl
+isSingleThread() {
+  local tmpcnt=$(pgrep -fa "$APPCTL_CMD_PATH $1" | wc -l)
+  test $tmpcnt -eq 2
 }
 
 # getSid
@@ -104,6 +111,12 @@ msIsReplStatusOk() {
   local scnt=$(echo "$tmpstr" | grep SECONDARY | wc -l)
   test $pcnt -eq 1
   test $((pcnt+scnt)) -eq $allcnt
+}
+
+msIsReplOther() {
+  local res=$(runMongoCmd "JSON.stringify(rs.status())" $@ | jq .ok)
+  if [ -z "$res" ] || [ $res -eq 0 ]; then return 0; fi
+  return 1
 }
 
 msEnableBalancer() {
@@ -1118,6 +1131,7 @@ getMonFilePath() {
 }
 
 monitor() {
+  if ! isSingleThread monitor; then log "a monitor is already running!"; return 1; fi
   local monpath=$(getMonFilePath)
   local serverStr=$(msGetServerStatusForMonitor)
   local tmpstr
@@ -1140,6 +1154,7 @@ monitor() {
 
 healthCheck() {
   if ! needHealthCheck; then log "skip health check"; return 0; fi
+  if ! isSingleThread healthCheck; then log "a health check is already running!"; return 1; fi
   local srv=$(echo $SERVICES | cut -d'/' -f1).service
   local port=$(echo $SERVICES | cut -d':' -f2)
   if ! systemctl is-active $srv -q; then
@@ -1150,14 +1165,35 @@ healthCheck() {
     log "port $port is not listened!"
     return $ERR_PORT_NOT_LISTENED
   fi
+
+  if [ ! $MY_ROLE = "mongos_node" ]; then
+    if ! msIsReplStatusOk ${#NODE_LIST[@]} -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+      log "replica cluster is not health"
+      return $ERR_REPL_NOT_HEALTH
+    fi
+  fi
   return 0
 }
 
 revive() {
+  if ! isSingleThread revive; then log "a revive is already running!"; return 1; fi
+  log "invoke revive"
   local srv=$(echo $SERVICES | cut -d'/' -f1).service
+  local port=$(echo $SERVICES | cut -d':' -f2)
   if ! systemctl is-active $srv -q; then
-    log "$srv has been revived!"
     systemctl restart $srv
+    log "$srv has been restarted!"
+  else
+    if [ ! $MY_ROLE = "mongos_node" ]; then
+      if [ ! $(lsof -b -i -s TCP:LISTEN | grep ':'$port | wc -l) = "1" ]; then
+        log "port $port is not listened! do nothing"
+      elif msIsReplOther -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE); then
+        systemctl restart $srv
+        log "status: OTHER, $srv has been restarted!"
+      else
+        log "status: NOT OTHER, do nothing"
+      fi
+    fi
   fi
 }
 
