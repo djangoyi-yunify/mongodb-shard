@@ -1470,7 +1470,78 @@ EOF
   msEnableBalancer -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
 }
 
+msReplOnlyChangeConf() {
+  local jsstr
+  local setParameter_cursorTimeoutMillis
+  local operationProfiling_mode
+  local operationProfiling_mode_code
+  local operationProfiling_slowOpThresholdMs
+  setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE.new)
+  jsstr=$(cat <<EOF
+db.adminCommand({setParameter:1,cursorTimeoutMillis:$setParameter_cursorTimeoutMillis})
+EOF
+  )
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  log "setParameter.cursorTimeoutMillis changed"
+
+  operationProfiling_mode=$(getItemFromFile operationProfiling_mode $CONF_INFO_FILE.new)
+  operationProfiling_slowOpThresholdMs=$(getItemFromFile operationProfiling_slowOpThresholdMs $CONF_INFO_FILE.new)
+  operationProfiling_mode_code=$(getOperationProfilingModeCode $operationProfiling_mode)
+  jsstr=$(cat <<EOF
+rs.slaveOk();
+var dblist=db.adminCommand('listDatabases').databases;
+var tmpdb;
+for (i=0;i<dblist.length;i++) {
+tmpdb=db.getSiblingDB(dblist[i].name);
+tmpdb.setProfilingLevel($operationProfiling_mode_code, { slowms: $operationProfiling_slowOpThresholdMs });
+}
+EOF
+  )
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  log "operationProfiling changed"
+}
+
+doWhenReplPostRestore() {
+  if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
+  local rlist=($(getRollingList))
+  local cnt=${#rlist[@]}
+  local tmpip
+  tmpip=$(getIp ${rlist[0]})
+  if [ ! $tmpip = "$MY_IP" ]; then log "$MY_ROLE: skip changing configue"; return 0; fi
+  # waiting for 24 hours to restore data
+  retry 86400 3 0 msIsReplStatusOk $cnt -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  # change oplog
+  for((i=0;i<$cnt;i++)); do
+    tmpip=$(getIp ${rlist[i]})
+    ssh root@$tmpip "appctl msReplChangeOplogSize"
+  done
+  # change other configure
+  for((i=0;i<$cnt;i++)); do
+    tmpip=$(getIp ${rlist[i]})
+    ssh root@$tmpip "appctl msReplOnlyChangeConf"
+  done
+}
+
+doWhenMongosPostRestore() {
+  if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
+  # waiting for 24 hours to restore data
+  retry 86400 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  # change configure
+  local jsstr
+  local setParameter_cursorTimeoutMillis
+
+  setParameter_cursorTimeoutMillis=$(getItemFromFile setParameter_cursorTimeoutMillis $CONF_INFO_FILE.new)
+  jsstr=$(cat <<EOF
+db.adminCommand({setParameter:1,cursorTimeoutMillis: $setParameter_cursorTimeoutMillis})
+EOF
+  )
+  runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  log "$MY_ROLE: change cursorTimeoutMillis"
+}
+
 postRestore() {
+  doWhenReplPostRestore
+  doWhenMongosPostRestore
   rm -rf $BACKUP_FLAG_FILE
   enableHealthCheck
 }
