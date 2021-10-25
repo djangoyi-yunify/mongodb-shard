@@ -268,9 +268,9 @@
                     "label": "User root's Password",
                     "description": "User root's Password",
                     "type": "password",
-                    "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}",
+                    "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z\\!\\@\\#]{8,32}",
                     "default": "Passw0rd",
-                    "required": "no"
+                    "required": "yes"
                 },
                 {
                     "key": "conf.storage.engine",
@@ -280,7 +280,7 @@
                     "default": "wiredTiger",
                     "range": ["wiredTiger"],
                     "changeable": false,
-                    "required": "yes"
+                    "required": "no"
                 },
                 {
                     "key": "mongos_node",
@@ -292,14 +292,14 @@
                         "description": "net.port.mongos.description",
                         "type": "integer",
                         "default": 27018,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
                         "label": "setParameter.cursorTimeoutMillis.mongos.label",
                         "description": "setParameter.cursorTimeoutMillis.mongos.description",
                         "type": "integer",
                         "default": 600000,
-                        "required": "yes"
+                        "required": "no"
                     }]
                 },
                 {
@@ -313,14 +313,14 @@
                         "type": "integer",
                         "default": 27019,
                         "changeable": false,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
                         "label": "setParameter.cursorTimeoutMillis.cs_node.label",
                         "description": "setParameter.cursorTimeoutMillis.cs_node.description",
                         "type": "integer",
                         "default": 600000,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
                         "label": "operationProfiling.mode.cs_node.label",
@@ -328,14 +328,14 @@
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
                         "label": "operationProfiling.slowOpThresholdMs.cs_node.label",
                         "description": "operationProfiling.slowOpThresholdMs.cs_node.description",
                         "type": "integer",
                         "default": 100,
-                        "required": "yes"
+                        "required": "no"
                     }]
                 },
                 {
@@ -349,14 +349,14 @@
                         "type": "integer",
                         "default": 27018,
                         "changeable": false,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
                         "label": "setParameter.cursorTimeoutMillis.shard_node.label",
                         "description": "setParameter.cursorTimeoutMillis.shard_node.description",
                         "type": "integer",
                         "default": 600000,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
                         "label": "operationProfiling.mode.shard_node.label",
@@ -364,14 +364,14 @@
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
                         "label": "operationProfiling.slowOpThresholdMs.shard_node.label",
                         "description": "operationProfiling.slowOpThresholdMs.shard_node.description",
                         "type": "integer",
                         "default": 100,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.replication.enableMajorityReadConcern",
                         "label": "replication.enableMajorityReadConcern.shard_node.label",
@@ -379,7 +379,7 @@
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
-                        "required": "yes"
+                        "required": "no"
                     }]
                 }
             ]

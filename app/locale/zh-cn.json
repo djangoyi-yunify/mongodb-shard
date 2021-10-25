@@ -94,5 +94,7 @@
     "globalLock-currentQueue-readers":"当前列队中写的数量",
     "globalLock-currentQueue-writers":"当前列队中读的数量",
     "replication.enableMajorityReadConcern.shard_node.label":"是否开启读策略",
-    "replication.enableMajorityReadConcern.shard_node.description":"true:开启 只能读取到成功写入到大多数节点的数据 ;false:关闭"
+    "replication.enableMajorityReadConcern.shard_node.description":"true:开启 只能读取到成功写入到大多数节点的数据 ;false:关闭",
+    "User root's Password label":"root用户密码",
+    "User root's Password description":"密码长度为8-32，必须包含数字，大写字母，小写字母和部分特殊字符"
 }
