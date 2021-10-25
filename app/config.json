@@ -266,21 +266,21 @@
                 {
                     "key": "conf.userPass",
                     "label": "User root's Password",
-                    "description": "User root's Password",
+                    "description": "must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except the $ and `symbols), and the length is between 8-32",
                     "type": "password",
-                    "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}",
+                    "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z\\!\\@\\#\\%\\^\\&\\*\\(\\)\\_\\+\\{\\}\\[\\]\\;\\:\\'\\,\\.\\/\\<\\>\\?]{8,32}",
                     "default": "Passw0rd",
-                    "required": "no"
+                    "required": "yes"
                 },
                 {
                     "key": "conf.storage.engine",
-                    "label": "storage.engine.label",
-                    "description": "storage.engine.description",
+                    "label": "storage.engine",
+                    "description": "storage.engine",
                     "type": "string",
                     "default": "wiredTiger",
                     "range": ["wiredTiger"],
                     "changeable": false,
-                    "required": "yes"
+                    "required": "no"
                 },
                 {
                     "key": "mongos_node",
@@ -288,18 +288,18 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port.mongos.label",
-                        "description": "net.port.mongos.description",
+                        "label": "net.port.mongos",
+                        "description": "mongos' net port",
                         "type": "integer",
                         "default": 27018,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis.mongos.label",
-                        "description": "setParameter.cursorTimeoutMillis.mongos.description",
+                        "label": "setParameter.cursorTimeoutMillis.mongos",
+                        "description": "mongos' cursor timeout(ms)",
                         "type": "integer",
                         "default": 600000,
-                        "required": "yes"
+                        "required": "no"
                     }]
                 },
                 {
@@ -308,41 +308,41 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port.cs_node.label",
-                        "description": "net.port.cs_node.description",
+                        "label": "net.port.cs_node",
+                        "description": "cs_node's net port",
                         "type": "integer",
                         "default": 27019,
                         "changeable": false,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis.cs_node.label",
-                        "description": "setParameter.cursorTimeoutMillis.cs_node.description",
+                        "label": "setParameter.cursorTimeoutMillis.cs_node",
+                        "description": "cs_node's cursor timeout(ms)",
                         "type": "integer",
                         "default": 600000,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
-                        "label": "operationProfiling.mode.cs_node.label",
-                        "description": "operationProfiling.mode.cs_node.description",
+                        "label": "operationProfiling.mode.cs_node",
+                        "description": "cs_node's operation profiling mode",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
-                        "label": "operationProfiling.slowOpThresholdMs.cs_node.label",
-                        "description": "operationProfiling.slowOpThresholdMs.cs_node.description",
+                        "label": "operationProfiling.slowOpThresholdMs.cs_node",
+                        "description": "cs_node's operation profiling slowOp threshold(ms)",
                         "type": "integer",
                         "default": 100,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.replication.oplogSizeMB",
-                        "label": "replication.oplogSizeMB.cs_node.label",
-                        "description": "replication.oplogSizeMB.cs_node.description",
+                        "label": "replication.oplogSizeMB.cs_node",
+                        "description": "cs_node's replication oplogSize(MB)",
                         "type": "integer",
                         "default": 2048,
-                        "required": "yes"
+                        "required": "no"
                     }]
                 },
                 {
@@ -351,49 +351,49 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port.shard_node.label",
-                        "description": "net.port.shard_node.description",
+                        "label": "net.port.shard_node",
+                        "description": "shard_node's net port",
                         "type": "integer",
                         "default": 27018,
                         "changeable": false,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis.shard_node.label",
-                        "description": "setParameter.cursorTimeoutMillis.shard_node.description",
+                        "label": "setParameter.cursorTimeoutMillis.shard_node",
+                        "description": "shard_node's cursor timeout(ms)",
                         "type": "integer",
                         "default": 600000,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
-                        "label": "operationProfiling.mode.shard_node.label",
-                        "description": "operationProfiling.mode.shard_node.description",
+                        "label": "operationProfiling.mode.shard_node",
+                        "description": "shard_node's operation profiling mode",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
-                        "label": "operationProfiling.slowOpThresholdMs.shard_node.label",
-                        "description": "operationProfiling.slowOpThresholdMs.shard_node.description",
+                        "label": "operationProfiling.slowOpThresholdMs.shard_node",
+                        "description": "shard_node's operation profiling slowOp threshold(ms)",
                         "type": "integer",
                         "default": 100,
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.replication.enableMajorityReadConcern",
-                        "label": "replication.enableMajorityReadConcern.shard_node.label",
-                        "description": "replication.enableMajorityReadConcern.shard_node.description",
+                        "label": "replication.enableMajorityReadConcern.shard_node",
+                        "description": "shard_node's replication enableMajorityReadConcern",
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
-                        "required": "yes"
+                        "required": "no"
                     }, {
                         "key": "conf.replication.oplogSizeMB",
-                        "label": "replication.oplogSizeMB.shard_node.label",
-                        "description": "replication.oplogSizeMB.shard_node.description",
+                        "label": "replication.oplogSizeMB.shard_node",
+                        "description": "shard_node's replication oplogSize(MB)",
                         "type": "integer",
                         "default": 2048,
-                        "required": "yes"
+                        "required": "no"
                     }]
                 }
             ]
