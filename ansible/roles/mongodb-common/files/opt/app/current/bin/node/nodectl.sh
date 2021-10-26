@@ -1453,13 +1453,15 @@ doWhenRestoreMongos() {
   _start
   local slist=($(getInitNodeList))
   if [ ! $MY_IP = $(getIp ${slist[0]}) ]; then return 0; fi
+  # waiting for mongos to be ready
+  retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   # change user root's password
   local user_pass="$(getItemFromFile user_pass $CONF_INFO_FILE.new)"
   jsstr=$(cat <<EOF
 admin = db.getSiblingDB("admin")
 admin.changeUserPassword("root", "$user_pass")
 EOF
-      )
+  )
   runMongoCmd "$jsstr" -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   log "user root's password has been changed"
 
@@ -1500,13 +1502,15 @@ EOF
 
 doWhenReplPostRestore() {
   if [ $MY_ROLE = "mongos_node" ]; then return 0; fi
-  local rlist=($(getRollingList))
-  local cnt=${#rlist[@]}
-  local tmpip
-  tmpip=$(getIp ${rlist[0]})
-  if [ ! $tmpip = "$MY_IP" ]; then log "$MY_ROLE: skip changing configue"; return 0; fi
   # waiting for 24 hours to restore data
+  local cnt=${#NODE_LIST[@]}
   retry 86400 3 0 msIsReplStatusOk $cnt -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  sleep 5s
+
+  local rlist=($(getRollingList))
+  local tmpip=$(getIp ${rlist[0]})
+  cnt=${#rlist[@]}
+  if [ ! $tmpip = "$MY_IP" ]; then log "$MY_ROLE: skip changing configue"; return 0; fi
   # change oplog
   for((i=0;i<$cnt;i++)); do
     tmpip=$(getIp ${rlist[i]})
@@ -1521,8 +1525,8 @@ doWhenReplPostRestore() {
 
 doWhenMongosPostRestore() {
   if [ ! $MY_ROLE = "mongos_node" ]; then return 0; fi
-  # waiting for 24 hours to restore data
-  retry 86400 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
+  # waiting for mongos to be ready
+  retry 60 3 0 msGetHostDbVersion -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   # change configure
   local jsstr
   local setParameter_cursorTimeoutMillis
