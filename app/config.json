@@ -268,7 +268,7 @@
                     "label": "User root's Password",
                     "description": "must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except the $ and `symbols), and the length is between 8-32",
                     "type": "password",
-                    "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z\\!\\@\\#\\%\\^\\&\\*\\(\\)\\_\\+\\{\\}\\[\\]\\;\\:\\'\\,\\.\\/\\<\\>\\?]{8,32}",
+                    "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#\\%\\^\\&\\*\\(\\)\\_\\+\\{\\}\\[\\]\\;\\:\\'\\,\\.\\/\\<\\>\\?]{8,32}$",
                     "default": "Passw0rd",
                     "required": "yes"
                 },
