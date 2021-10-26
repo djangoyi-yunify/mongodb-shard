@@ -567,8 +567,7 @@ EOF
 }
 
 msAddUserRoot() {
-  local user_pass=$(getItemFromFile user_pass $CONF_INFO_FILE)
-  user_pass=$(echo $user_pass | sed 's/"/\\"/g')
+  local user_pass="$(getItemFromFile user_pass $CONF_INFO_FILE)"
   local jsstr=$(cat <<EOF
 admin = db.getSiblingDB("admin")
 admin.createUser(
@@ -886,8 +885,7 @@ doWhenMongosConfChanged() {
       cat $CONF_INFO_FILE.new > $CONF_INFO_FILE
       slist=($(getInitNodeList))
       if [ ! $(getIp ${slist[0]}) = "$MY_IP" ]; then log "$MY_ROLE: skip changing user pass"; return 0; fi
-      user_pass=$(getItemFromFile user_pass $CONF_INFO_FILE.new)
-      user_pass=$(echo $user_pass | sed 's/"/\\"/g')
+      user_pass="$(getItemFromFile user_pass $CONF_INFO_FILE.new)"
       jsstr=$(cat <<EOF
 admin = db.getSiblingDB("admin")
 admin.changeUserPassword("root", "$user_pass")
@@ -1456,8 +1454,7 @@ doWhenRestoreMongos() {
   local slist=($(getInitNodeList))
   if [ ! $MY_IP = $(getIp ${slist[0]}) ]; then return 0; fi
   # change user root's password
-  local user_pass=$(getItemFromFile user_pass $CONF_INFO_FILE.new)
-  user_pass=$(echo $user_pass | sed 's/"/\\"/g')
+  local user_pass="$(getItemFromFile user_pass $CONF_INFO_FILE.new)"
   jsstr=$(cat <<EOF
 admin = db.getSiblingDB("admin")
 admin.changeUserPassword("root", "$user_pass")
