@@ -323,7 +323,7 @@
                         "description": "mongos' net port: cannot be set to 27099, the recommended value range: 29000~29900",
                         "type": "integer",
                         "default": 27018,
-                        "pattern": "^((?!27099).)+$",
+                        "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
                         "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
@@ -344,7 +344,7 @@
                         "description": "cs_node's net port: cannot be set to 27099, the recommended value range: 29000~29900",
                         "type": "integer",
                         "default": 27019,
-                        "pattern": "^((?!27099).)+$",
+                        "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
                         "changeable": false,
                         "required": "no"
                     }, {
@@ -388,7 +388,7 @@
                         "description": "shard_node's net port: cannot be set to 27099, the recommended value range: 29000~29900",
                         "type": "integer",
                         "default": 27018,
-                        "pattern": "^((?!27099).)+$",
+                        "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
                         "changeable": false,
                         "required": "no"
                     }, {
