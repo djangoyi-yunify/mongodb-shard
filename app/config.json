@@ -51,7 +51,7 @@
                             "description": "The instance type for the config server node",
                             "type": "integer",
                             "default": 101,
-                            "range": [101, 202],
+                            "range": [101],
                             "required": "yes",
                             "resource_group": [101, 101]
                         },
@@ -93,7 +93,7 @@
                             "range": [2, 5, 100, 200],
                             "default": 0,
                             "required": "yes",
-                            "resource_group": [100, 200]
+                            "resource_group": [100, 100]
                         },
                         {
                             "key": "volume_size",
