@@ -19,11 +19,11 @@
     "The instance type for the Mongos node": "Mongos Node的实例类型",
     "storage.engine": "存储引擎",
     "net.port.mongos": "Mongos Node监听端口",
-    "mongos' net port": "Mongos Node监听端口",
+    "mongos' net port: cannot be set to 27099, the recommended value range: 29000~29900": "Mongos Node监听端口: 不能设置为27099，建议取值范围：29000~29900",
     "setParameter.cursorTimeoutMillis.mongos": "Mongos Node游标超时时间（毫秒）",
     "mongos' cursor timeout(ms)": "Mongos Node游标超时时间（毫秒）",
     "net.port.cs_node": "Config Server Node监听端口",
-    "cs_node's net port": "Config Server Node监听端口",
+    "cs_node's net port: cannot be set to 27099, the recommended value range: 29000~29900": "Config Server Node监听端口: 不能设置为27099，建议取值范围：29000~29900",
     "setParameter.cursorTimeoutMillis.cs_node": "Config Server Node游标超时时间（毫秒）",
     "cs_node's cursor timeout(ms)": "Config Server Node游标超时时间（毫秒）",
     "operationProfiling.mode.cs_node": "是否在Config Server Node上开启慢查询日志",
@@ -32,7 +32,7 @@
     "cs_node's operation profiling slowOp threshold(ms)": "慢查询判定时间",
     "cs_node's replication oplogSize(MB)":"Config Server Node的opLog日志大小",
     "net.port.shard_node": "Shard Node监听端口",
-    "shard_node's net port": "Shard Node监听端口",
+    "shard_node's net port: cannot be set to 27099, the recommended value range: 29000~29900": "Shard Node监听端口: 不能设置为27099，建议取值范围：29000~29900",
     "setParameter.cursorTimeoutMillis.shard_node": "Shard Node游标超时时间（毫秒）",
     "shard_node's cursor timeout(ms)": "Shard Node游标超时时间（毫秒）",
     "operationProfiling.mode.shard_node": "是否在Shard Node上开启慢查询日志",
@@ -67,5 +67,7 @@
     "GLOBALLOCK-ACTIVECLIENTS":"活跃客户端",
     "GLOBALLOCK-CURRENTQUEUE":"当前列队",
     "User root's Password":"root用户密码",
-    "must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except the $ and `symbols), and the length is between 8-32":"必须包含大小写字母和数字的组合，可以使用特殊字符（$和`符号除外），长度在8-32之间"
+    "must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except the $ and `symbols), and the length is between 8-32":"必须包含大小写字母和数字的组合，可以使用特殊字符（$和`符号除外），长度在8-32之间",
+    "replication.oplogSizeMB.cs_node":"Config Server Node的opLog日志大小",
+    "replication.oplogSizeMB.shard_node":"Shard Node的opLog日志大小"
 }
