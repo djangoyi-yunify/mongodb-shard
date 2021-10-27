@@ -11,7 +11,7 @@
                     "type": "string",
                     "label": "Name",
                     "description": "The name of the application",
-                    "default": "MongoDB Shard Cluster",
+                    "default": "MongoDB Sharded Cluster",
                     "required": "no"
                 },
                 {
@@ -32,7 +32,7 @@
                 },{
                     "key": "resource_group",
                     "label": "Express Configuration",
-                    "description": "Test: CPU * 1, Memory 2G, Mongos * 2, Config Server * 3, Shard * 2, Replica * 2; Prod: CPU * 2, Memory 8G, Mongos * 2, Config Server * 3, Shard * 2, Replica * 2",
+                    "description": "Test: Config Server(1c2g)-3, Shard(1c2g)-1, Mongos(1c2g)-1</br>Prod: Config Server(1c2g)-3, Shard(2c8g)-2, Mongos(2c8g)-2",
                     "type": "string",
                     "default": "Test",
                     "range": [
@@ -188,17 +188,18 @@
                         {
                             "key": "count",
                             "label": "Node Count",
-                            "description": "Number of nodes to be created",
+                            "description": "Number of nodes to be created, can NOT be decreased if the cluster has been created",
                             "type": "integer",
                             "min": 1,
                             "max": 10,
                             "default": 2,
-                            "required": "yes"
+                            "required": "yes",
+                            "resource_group": [1, 2]
                         },
                         {
                             "key": "replica",
                             "label": "Replica",
-                            "description": "The replica number of the node",
+                            "description": "The replica number of the node, it's a fixed number and can NOT be changed",
                             "type": "integer",
                             "default": 2,
                             "range": [2],
@@ -283,7 +284,8 @@
                             "min": 1,
                             "max": 10,
                             "default": 2,
-                            "required": "yes"
+                            "required": "yes",
+                            "resource_group": [1, 2]
                         }
                     ]
                 }
@@ -297,7 +299,7 @@
                 {
                     "key": "conf.userPass",
                     "label": "User root's Password",
-                    "description": "must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except the $ and `symbols), and the length is between 8-32",
+                    "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except $, ` and \"), and the length is between 8-32",
                     "type": "password",
                     "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#\\%\\^&\\*\\(\\)\\_\\+\\{\\}\\[\\]\\;\\:\\'\\,\\.\\/\\<\\>\\?]{8,32}$",
                     "default": "Passw0rd",
@@ -305,8 +307,8 @@
                 },
                 {
                     "key": "conf.storage.engine",
-                    "label": "storage.engine",
-                    "description": "storage.engine",
+                    "label": "Storage engine",
+                    "description": "The storage engine used by MongoDB, can NOT be changed",
                     "type": "string",
                     "default": "wiredTiger",
                     "range": ["wiredTiger"],
@@ -319,16 +321,16 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port.mongos",
-                        "description": "mongos' net port: cannot be set to 27099, the recommended value range: 29000~29900",
+                        "label": "Mongos' net port",
+                        "description": "Mongos' net port, can NOT be set to 27099, need restart mongos.service if being changed",
                         "type": "integer",
                         "default": 27018,
                         "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
                         "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis.mongos",
-                        "description": "mongos' cursor timeout(ms)",
+                        "label": "Mongos' setParameter.cursorTimeoutMillis",
+                        "description": "Mongos' setParameter.cursorTimeoutMillis(ms)",
                         "type": "integer",
                         "default": 600000,
                         "required": "no"
@@ -340,8 +342,8 @@
                     "type": "array",
                     "properties": [{
                         "key": "conf.net.port",
-                        "label": "net.port.cs_node",
-                        "description": "cs_node's net port: cannot be set to 27099, the recommended value range: 29000~29900",
+                        "label": "Config Server's net.port",
+                        "description": "Config Server's net port: can NOT be set to 27099, can NOT be changed if the cluster has been created",
                         "type": "integer",
                         "default": 27019,
                         "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
@@ -349,30 +351,30 @@
                         "required": "no"
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
-                        "label": "setParameter.cursorTimeoutMillis.cs_node",
-                        "description": "cs_node's cursor timeout(ms)",
+                        "label": "Config Server's setParameter.cursorTimeoutMillis",
+                        "description": "Config Server's setParameter.cursorTimeoutMillis(ms)",
                         "type": "integer",
                         "default": 600000,
                         "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
-                        "label": "operationProfiling.mode.cs_node",
-                        "description": "cs_node's operation profiling mode",
+                        "label": "Config Server's operationProfiling.mode",
+                        "description": "Config Server's operationProfiling.mode [off, slowOp, all]",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
                         "required": "no"
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
-                        "label": "operationProfiling.slowOpThresholdMs.cs_node",
-                        "description": "cs_node's operation profiling slowOp threshold(ms)",
+                        "label": "Config Server's operationProfiling.slowOpThresholdMs",
+                        "description": "Config Server's operationProfiling.slowOpThresholdMs(ms)",
                         "type": "integer",
                         "default": 100,
                         "required": "no"
                     }, {
                         "key": "conf.replication.oplogSizeMB",
-                        "label": "replication.oplogSizeMB.cs_node",
-                        "description": "cs_node's replication oplogSize(MB)",
+                        "label": "Config Server's replication.oplogSizeMB",
+                        "description": "Config Server's replication.oplogSizeMB(MB), between 990 and 51200 (50G)",
                         "type": "integer",
                         "default": 2048,
                         "required": "no"
@@ -415,8 +417,8 @@
                         "required": "no"
                     }, {
                         "key": "conf.replication.enableMajorityReadConcern",
-                        "label": "replication.enableMajorityReadConcern.shard_node",
-                        "description": "shard_node's replication enableMajorityReadConcern",
+                        "label": "Shard's replication.enableMajorityReadConcern",
+                        "description": "Shard's replication.enableMajorityReadConcern, need restart mongod.service if being changed",
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
