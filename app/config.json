@@ -90,7 +90,7 @@
                             "label": "Volume Class",
                             "description": "The volume type for each node",
                             "type": "integer",
-                            "range": [2, 5, 100, 200],
+                            "range": [2, 100],
                             "default": 0,
                             "required": "yes",
                             "resource_group": [100, 100]
@@ -113,6 +113,7 @@
                             "min": 3,
                             "max": 3,
                             "default": 3,
+                            "range": [3],
                             "readonly": "yes",
                             "required": "yes"
                         }
@@ -200,6 +201,7 @@
                             "description": "The replica number of the node",
                             "type": "integer",
                             "default": 2,
+                            "range": [2],
                             "min": 2,
                             "max": 2,
                             "readonly": "yes",
