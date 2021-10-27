@@ -32,12 +32,12 @@
                 },{
                     "key": "resource_group",
                     "label": "Express Configuration",
-                    "description": "Basic: CPU * 1, Memory 2G, Mongos * 2, Config Server * 3, Shard * 2, Replica * 2; Enterprise 2: CPU * 2, Memory 4G, Mongos * 2, Config Server * 3, Shard * 2, Replica * 2",
+                    "description": "Test: CPU * 1, Memory 2G, Mongos * 2, Config Server * 3, Shard * 2, Replica * 2; Prod: CPU * 2, Memory 8G, Mongos * 2, Config Server * 3, Shard * 2, Replica * 2",
                     "type": "string",
-                    "default": "Basic",
+                    "default": "Test",
                     "range": [
-                          "Basic",
-                          "Enterprise 2"
+                          "Test",
+                          "Prod"
                       ]
                 },{
                     "key": "cs_node",
@@ -51,39 +51,49 @@
                             "description": "The instance type for the config server node",
                             "type": "integer",
                             "default": 101,
-                            "range": [101, 202, 301],
+                            "range": [101, 202],
                             "required": "yes",
-                            "resource_group": [101, 202]
+                            "resource_group": [101, 101]
                         },
                         {
                             "key": "cpu",
                             "label": "CPU",
                             "description": "CPUs of each node",
                             "type": "integer",
-                            "range": [1, 2, 4],
+                            "range": [1, 2, 4, 8, 16, 32, 64],
                             "default": 1,
                             "required": "yes",
-                            "resource_group": [1, 2]
+                            "resource_group": [1, 1]
                         },
                         {
                             "key": "memory",
                             "description": "Memory of each node",
                             "label": "Memory",
                             "type": "integer",
-                            "range": [2048, 4096, 8192],
+                            "range": [
+                                1024,
+                                2048,
+                                4096,
+                                8192,
+                                16384,
+                                32768,
+                                65536,
+                                131072,
+                                262144
+                              ],
                             "default": 2048,
                             "required": "yes",
-                            "resource_group": [2048, 4096]
+                            "resource_group": [2048, 2048]
                         },
                         {
                             "key": "volume_class",
                             "label": "Volume Class",
                             "description": "The volume type for each node",
                             "type": "integer",
-                            "range": [0, 2, 3, 10, 200],
+                            "range": [2, 5, 100, 200],
                             "default": 0,
                             "required": "yes",
-                            "resource_group": [0, 200]
+                            "resource_group": [100, 200]
                         },
                         {
                             "key": "volume_size",
@@ -120,7 +130,7 @@
                             "description": "The instance type for the shard node",
                             "type": "integer",
                             "default": 101,
-                            "range": [101, 202, 301],
+                            "range": [101, 202],
                             "required": "yes",
                             "resource_group": [101, 202]
                         },
@@ -129,7 +139,7 @@
                             "label": "CPU",
                             "description": "CPUs of each node",
                             "type": "integer",
-                            "range": [1, 2, 4],
+                            "range": [1, 2, 4, 8, 16, 32, 64],
                             "default": 1,
                             "required": "yes",
                             "resource_group": [1, 2]
@@ -139,31 +149,40 @@
                             "description": "Memory of each node",
                             "label": "Memory",
                             "type": "integer",
-                            "range": [2048, 4096, 8192],
+                            "range": [
+                                1024,
+                                2048,
+                                4096,
+                                8192,
+                                16384,
+                                32768,
+                                65536,
+                                131072,
+                                262144
+                              ],
                             "default": 2048,
                             "required": "yes",
-                            "resource_group": [2048, 4096]
+                            "resource_group": [2048, 8192]
                         },
                         {
                             "key": "volume_class",
                             "label": "Volume Class",
                             "description": "The volume type for each node",
                             "type": "integer",
-                            "range": [0, 2, 3, 10, 200],
+                            "range": [2, 5, 100, 200],
                             "default": 0,
                             "required": "yes",
-                            "resource_group": [0, 200]
+                            "resource_group": [100, 200]
                         },
                         {
                             "key": "volume_size",
                             "label": "Volume Size",
                             "description": "The volume size for each instance",
                             "type": "integer",
-                            "default": 50,
-                            "min": 50,
+                            "default": 200,
+                            "min": 200,
                             "step": 50,
-                            "required": "yes",
-                            "resource_group": [50, 1000]
+                            "required": "yes"
                         },
                         {
                             "key": "count",
@@ -200,7 +219,7 @@
                             "description": "The instance type for the Mongos node",
                             "type": "integer",
                             "default": 101,
-                            "range": [101, 202, 301],
+                            "range": [101, 202],
                             "required": "yes",
                             "resource_group": [101, 202]
                         },
@@ -209,7 +228,7 @@
                             "label": "CPU",
                             "description": "CPUs of each node",
                             "type": "integer",
-                            "range": [1, 2, 4],
+                            "range": [1, 2, 4, 8, 16, 32, 64],
                             "default": 1,
                             "required": "yes",
                             "resource_group": [1, 2]
@@ -219,20 +238,30 @@
                             "description": "Memory of each node",
                             "label": "Memory",
                             "type": "integer",
-                            "range": [2048, 4096, 8192],
+                            "range": [
+                                1024,
+                                2048,
+                                4096,
+                                8192,
+                                16384,
+                                32768,
+                                65536,
+                                131072,
+                                262144
+                              ],
                             "default": 2048,
                             "required": "yes",
-                            "resource_group": [2048, 4096]
+                            "resource_group": [2048, 8192]
                         },
                         {
                             "key": "volume_class",
                             "label": "Volume Class",
                             "description": "The volume type for each node",
                             "type": "integer",
-                            "range": [0, 2, 3, 10, 200],
+                            "range": [2, 5, 100, 200],
                             "default": 0,
                             "required": "yes",
-                            "resource_group": [0, 200]
+                            "resource_group": [100, 200]
                         },
                         {
                             "key": "volume_size",
