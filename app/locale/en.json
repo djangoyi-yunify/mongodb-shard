@@ -1,3 +1,10 @@
 {
-    "err_code130": "Permission denied to delete all members in the replicaset"
+    "err_code201": "Can NOT stop balancer!",
+    "err_code202": "Precheck failed when changing vxnet!",
+    "err_code203": "Forbid to remove shard nodes!",
+    "err_code204": "Service stoped!",
+    "err_code205": "Net port is NOT listened!",
+    "err_code206": "Shard's replica name is changed when restoring from a backup!",
+    "err_code207": "Invalid params when invoking runMongoCmd!",
+    "err_code208": "Replicaset's status: NOT health!"
 }

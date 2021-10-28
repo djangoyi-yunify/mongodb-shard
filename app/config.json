@@ -322,15 +322,17 @@
                     "properties": [{
                         "key": "conf.net.port",
                         "label": "Mongos' net.port",
-                        "description": "Mongos' net.port, can NOT be set to 27099, need restart mongos.service if being changed",
+                        "description": "net.port, can NOT be set to 27099, need restart mongos.service if being changed, default value: 27018",
                         "type": "integer",
                         "default": 27018,
                         "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
-                        "required": "no"
+                        "required": "no",
+                        "min": 1025,
+                        "max": 65535
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
                         "label": "Mongos' setParameter.cursorTimeoutMillis",
-                        "description": "Mongos' setParameter.cursorTimeoutMillis",
+                        "description": "setParameter.cursorTimeoutMillis, unit: ms, default value: 600000",
                         "type": "integer",
                         "default": 600000,
                         "required": "no"
@@ -343,23 +345,25 @@
                     "properties": [{
                         "key": "conf.net.port",
                         "label": "Config Server's net.port",
-                        "description": "Config Server's net.port: can NOT be set to 27099, can NOT be changed if the cluster has been created",
+                        "description": "net.port, can NOT be set to 27099, can NOT be changed if the cluster has been created, default value: 27019",
                         "type": "integer",
                         "default": 27019,
                         "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
                         "changeable": false,
-                        "required": "no"
+                        "required": "no",
+                        "min": 1025,
+                        "max": 65535
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
                         "label": "Config Server's setParameter.cursorTimeoutMillis",
-                        "description": "Config Server's setParameter.cursorTimeoutMillis",
+                        "description": "setParameter.cursorTimeoutMillis, unit: ms, default value: 600000",
                         "type": "integer",
                         "default": 600000,
                         "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
                         "label": "Config Server's operationProfiling.mode",
-                        "description": "Config Server's operationProfiling.mode [off, slowOp, all]",
+                        "description": "operationProfiling.mode [off, slowOp, all], default value: off",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
@@ -367,14 +371,14 @@
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
                         "label": "Config Server's operationProfiling.slowOpThresholdMs",
-                        "description": "Config Server's operationProfiling.slowOpThresholdMs",
+                        "description": "operationProfiling.slowOpThresholdMs, unit: ms, default value: 100",
                         "type": "integer",
                         "default": 100,
                         "required": "no"
                     }, {
                         "key": "conf.replication.oplogSizeMB",
                         "label": "Config Server's replication.oplogSizeMB",
-                        "description": "Config Server's replication.oplogSizeMB, between 990 and 51200 (50G)",
+                        "description": "replication.oplogSizeMB, defalut value: 2048",
                         "type": "integer",
                         "default": 2048,
                         "required": "no",
@@ -389,23 +393,25 @@
                     "properties": [{
                         "key": "conf.net.port",
                         "label": "Shard's net.port",
-                        "description": "Shard's net.port: can NOT be changed if the cluster has been created, cannot be set to 27099, the recommended value range: 29000~29900",
+                        "description": "net.port,, can NOT be set to 27099, can NOT be changed if the cluster has been created, default value: 27018",
                         "type": "integer",
                         "default": 27018,
                         "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
                         "changeable": false,
-                        "required": "no"
+                        "required": "no",
+                        "min": 1025,
+                        "max": 65535
                     }, {
                         "key": "conf.setParameter.cursorTimeoutMillis",
                         "label": "Shard's setParameter.cursorTimeoutMillis",
-                        "description": "Shard's setParameter.cursorTimeoutMillis",
+                        "description": "setParameter.cursorTimeoutMillis, unit: ms, default value: 600000",
                         "type": "integer",
                         "default": 600000,
                         "required": "no"
                     }, {
                         "key": "conf.operationProfiling.mode",
                         "label": "Shard's operationProfiling.mode",
-                        "description": "Shard's operationProfiling.mode [off, slowOp, all]",
+                        "description": "operationProfiling.mode [off, slowOp, all], default value: off",
                         "type": "string",
                         "range": ["off", "slowOp", "all"],
                         "default": "off",
@@ -413,14 +419,14 @@
                     }, {
                         "key": "conf.operationProfiling.slowOpThresholdMs",
                         "label": "Shard's operationProfiling.slowOpThresholdMs",
-                        "description": "Shard's operationProfiling.slowOpThresholdMs",
+                        "description": "operationProfiling.slowOpThresholdMs, unit: ms, default value: 100",
                         "type": "integer",
                         "default": 100,
                         "required": "no"
                     }, {
                         "key": "conf.replication.enableMajorityReadConcern",
                         "label": "Shard's replication.enableMajorityReadConcern",
-                        "description": "Shard's replication.enableMajorityReadConcern, need restart mongod.service if being changed",
+                        "description": "replication.enableMajorityReadConcern, need restart mongod.service if being changed, default value: true",
                         "type": "string",
                         "default": "true",
                         "range": ["true", "false"],
@@ -428,10 +434,12 @@
                     }, {
                         "key": "conf.replication.oplogSizeMB",
                         "label": "Shard's replication.oplogSizeMB",
-                        "description": "Shard's replication.oplogSizeMB, between 990 and 51200 (50G)",
+                        "description": "replication.oplogSizeMB, defalut value: 2048",
                         "type": "integer",
                         "default": 2048,
-                        "required": "no"
+                        "required": "no",
+                        "min": 990,
+                        "max": 51200
                     }]
                 }
             ]
