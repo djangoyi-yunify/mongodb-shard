@@ -301,7 +301,7 @@
                     "label": "User root's Password",
                     "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32",
                     "type": "password",
-                    "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#\\%\\^&\\*\\(\\)\\_\\+\\{\\}\\[\\]\\;\\:\\'\\,\\.\\/\\<\\>\\?]{8,32}$",
+                    "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\&\\*\\(\\)\\_\\+\\-\\=]{8,32}$",
                     "default": "Passw0rd",
                     "required": "yes"
                 },
@@ -393,7 +393,7 @@
                     "properties": [{
                         "key": "conf.net.port",
                         "label": "Shard's net.port",
-                        "description": "net.port,, can NOT be set to 27099, can NOT be changed if the cluster has been created, default value: 27018",
+                        "description": "net.port, can NOT be set to 27099, can NOT be changed if the cluster has been created, default value: 27018",
                         "type": "integer",
                         "default": 27018,
                         "pattern": "^(?!27099)(102[4-9]|10[3-9]\\d|1[1-9]\\d\\d|[2-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",
