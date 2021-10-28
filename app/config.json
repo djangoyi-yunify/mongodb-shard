@@ -32,7 +32,7 @@
                 },{
                     "key": "resource_group",
                     "label": "Express Configuration",
-                    "description": "Test: Config Server * 3, Shard * 1, Mongos * 1</br>Prod: Config Server * 3, Shard * 2, Mongos * 2",
+                    "description": "Test: Config Server * 3, Shard * 2, Mongos * 1</br>Prod: Config Server * 3, Shard * 2, Mongos * 2",
                     "type": "string",
                     "default": "Test",
                     "range": [
@@ -190,11 +190,11 @@
                             "label": "Node Count",
                             "description": "Number of nodes to be created, can NOT be decreased if the cluster has been created",
                             "type": "integer",
-                            "min": 1,
-                            "max": 10,
+                            "min": 2,
+                            "max": 16,
                             "default": 2,
                             "required": "yes",
-                            "resource_group": [1, 2]
+                            "resource_group": [2, 2]
                         },
                         {
                             "key": "replica",

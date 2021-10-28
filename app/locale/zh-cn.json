@@ -29,7 +29,7 @@
     "The name of the application": "应用实例的名称",
     "The description of the application": "应用实例的描述",
     "Express Configuration": "快速配置",
-    "Test: Config Server * 3, Shard * 1, Mongos * 1</br>Prod: Config Server * 3, Shard * 2, Mongos * 2":"测试环境：Mongos 节点 * 1,Config Server 节点 * 3,Shard 节点 * 1 <br>生产环境：Mongos 节点 * 2,Config Server 节点 * 3,Shard 节点 * 2",
+    "Test: Config Server * 3, Shard * 2, Mongos * 1</br>Prod: Config Server * 3, Shard * 2, Mongos * 2":"测试环境：Mongos 节点 * 1,Config Server 节点 * 3,Shard 节点 * 2 <br>生产环境：Mongos 节点 * 2,Config Server 节点 * 3,Shard 节点 * 2",
     "Test":"测试环境",
     "Prod":"生产环境",
     "The instance type for the config server node": "Config Server 的实例类型",
