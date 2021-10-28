@@ -299,7 +299,7 @@
                 {
                     "key": "conf.userPass",
                     "label": "User root's Password",
-                    "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except $, ` and \"), and the length is between 8-32",
+                    "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32",
                     "type": "password",
                     "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#\\%\\^&\\*\\(\\)\\_\\+\\{\\}\\[\\]\\;\\:\\'\\,\\.\\/\\<\\>\\?]{8,32}$",
                     "default": "Passw0rd",
