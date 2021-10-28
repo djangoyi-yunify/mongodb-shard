@@ -48,7 +48,7 @@
 
 
     "User root's Password": "root 用户密码",
-    "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (except $, ` and \"), and the length is between 8-32":"必须包含大小写字母和数字的组合,可使用特殊字符（ $, ` 和 \" 除外）,长度在 8-32 之间",
+    "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32":"必须包含大小写字母和数字的组合,可使用特殊字符(包括 @#%&*()_+-=),长度在 8-32 之间",
     "Storage engine": "存储引擎",
     "The storage engine used by MongoDB, can NOT be changed": "MongoDB 的存储引擎,不可更改",
     "Mongos' net.port": "Mongos 的 net.port",
