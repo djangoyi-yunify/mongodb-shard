@@ -32,7 +32,7 @@
                 },{
                     "key": "resource_group",
                     "label": "Express Configuration",
-                    "description": "Test: Config Server * 3, Shard * 2, Mongos * 1 </br>Prod: Config Server * 3, Shard * 2, Mongos * 2 </br>Note: each Shard consists of 1 primary node + 2 replica nodes",
+                    "description": "Test: Config Server * 3, Shard * 1, Mongos * 1 </br>Prod: Config Server * 3, Shard * 2, Mongos * 2 </br>Note: each Shard consists of 1 primary node + 2 replica nodes",
                     "type": "string",
                     "default": "Test",
                     "range": [
@@ -60,7 +60,7 @@
                             "label": "CPU",
                             "description": "CPUs of each node",
                             "type": "integer",
-                            "range": [1, 2, 4, 8, 16, 32, 64],
+                            "range": [1],
                             "default": 1,
                             "required": "yes",
                             "resource_group": [1, 1]
@@ -71,15 +71,7 @@
                             "label": "Memory",
                             "type": "integer",
                             "range": [
-                                1024,
-                                2048,
-                                4096,
-                                8192,
-                                16384,
-                                32768,
-                                65536,
-                                131072,
-                                262144
+                                2048
                               ],
                             "default": 2048,
                             "required": "yes",
@@ -90,8 +82,8 @@
                             "label": "Volume Class",
                             "description": "The volume type for each node",
                             "type": "integer",
-                            "range": [2, 100],
-                            "default": 0,
+                            "range": [100],
+                            "default": 100,
                             "required": "yes",
                             "resource_group": [100, 100]
                         },
@@ -108,7 +100,7 @@
                         {
                             "key": "count",
                             "label": "Node Count",
-                            "description": "Each Config Server defaults to a replica set architecture (three nodes), and modification is not currently supported.",
+                            "description": "Each ConfigServer defaults to a replica set architecture (three nodes), and modification is not currently supported.",
                             "type": "integer",
                             "min": 3,
                             "max": 3,
@@ -130,7 +122,7 @@
                             "label": "Instance Class",
                             "description": "The instance type for the shard node",
                             "type": "integer",
-                            "default": 101,
+                            "default": 202,
                             "range": [101, 202],
                             "required": "yes",
                             "resource_group": [101, 202]
@@ -141,7 +133,7 @@
                             "description": "CPUs of each node",
                             "type": "integer",
                             "range": [1, 2, 4, 8, 16, 32, 64],
-                            "default": 1,
+                            "default": 2,
                             "required": "yes",
                             "resource_group": [1, 2]
                         },
@@ -161,7 +153,7 @@
                                 131072,
                                 262144
                               ],
-                            "default": 2048,
+                            "default": 8192,
                             "required": "yes",
                             "resource_group": [2048, 8192]
                         },
@@ -171,7 +163,7 @@
                             "description": "The volume type for each node",
                             "type": "integer",
                             "range": [2, 5, 100, 200],
-                            "default": 0,
+                            "default": 200,
                             "required": "yes",
                             "resource_group": [100, 200]
                         },
@@ -209,7 +201,7 @@
                             "label": "Instance Class",
                             "description": "The instance type for the Mongos node",
                             "type": "integer",
-                            "default": 101,
+                            "default": 202,
                             "range": [101, 202],
                             "required": "yes",
                             "resource_group": [101, 202]
@@ -220,7 +212,7 @@
                             "description": "CPUs of each node",
                             "type": "integer",
                             "range": [1, 2, 4, 8, 16, 32, 64],
-                            "default": 1,
+                            "default": 2,
                             "required": "yes",
                             "resource_group": [1, 2]
                         },
@@ -240,7 +232,7 @@
                                 131072,
                                 262144
                               ],
-                            "default": 2048,
+                            "default": 8192,
                             "required": "yes",
                             "resource_group": [2048, 8192]
                         },
@@ -250,7 +242,7 @@
                             "description": "The volume type for each node",
                             "type": "integer",
                             "range": [2, 5, 100, 200],
-                            "default": 0,
+                            "default": 200,
                             "required": "yes",
                             "resource_group": [100, 200]
                         },
@@ -290,7 +282,7 @@
                     "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32",
                     "type": "password",
                     "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\&\\*\\(\\)\\_\\+\\-\\=]{8,32}$",
-                    "default": "Passw0rd",
+                    "default": "Change1Pwd",
                     "required": "yes"
                 },
                 {
