@@ -29,7 +29,7 @@
     "The name of the application": "应用实例的名称",
     "The description of the application": "应用实例的描述",
     "Express Configuration": "快速配置",
-    "Test: Config Server * 3, Shard * 2, Mongos * 1 </br>Prod: Config Server * 3, Shard * 2, Mongos * 2 </br>Note: each Shard consists of 1 primary node + 2 replica nodes": "测试环境：Config Server * 3, Shard * 2, Mongos * 1 <br>生产环境：Config Server * 3, Shard * 2, Mongos * 2 <br>说明: 每个 Shard 由 1 个主节点 + 2 个副本节点组成",
+    "Test: Config Server * 3, Shard * 1, Mongos * 1 </br>Prod: Config Server * 3, Shard * 2, Mongos * 2 </br>Note: each Shard consists of 1 primary node + 2 replica nodes": "测试环境：Config Server * 3, Shard * 1, Mongos * 1 <br>生产环境：Config Server * 3, Shard * 2, Mongos * 2 <br>说明: 每个 Shard 由 1 个主节点 + 2 个副本节点组成",
     "Test": "测试环境",
     "Prod": "生产环境",
     "The instance type for the config server node": "Config Server 的实例类型",
@@ -45,7 +45,7 @@
     "The instance type for the Mongos node": "Mongos 的实例类型",
     "Number of Shard nodes to be created, can NOT be decreased if the cluster has been created, each Shard consists of 1 primary node + 2 replica nodes": "要创建的 Shard 数量, 集群创建后不可删除, 每个 Shard 由 1 个主节点 + 2 个副本节点组成",
     "The replica number of the node, it's a fixed number and can NOT be changed": "每个节点的副本数量，固定值不可更改",
-    "Each Config Server defaults to a replica set architecture (three nodes), and modification is not currently supported." : "每个 ConfigServer 默认为副本集架构 (三节点)，暂不支持修改。",
+    "Each ConfigServer defaults to a replica set architecture (three nodes), and modification is not currently supported." : "每个 Config Server 默认为副本集架构 (三节点)，暂不支持修改。",
 
     "User root's Password": "数据库 root 用户密码",
     "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32":"必须包含大小写字母和数字的组合, 可使用特殊字符(包括 @#%&*()_+-=), 长度在 8-32 之间",

@@ -15,7 +15,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-2erb3q0f"
+            "image": "img-yot7lueh"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -77,31 +77,31 @@
             "enable": true,
             "cmd": "appctl monitor",
             "items": {
-                "opcounters-insert": {
+                "op-insert": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-query": {
+                "op-query": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-update": {
+                "op-update": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-delete": {
+                "op-delete": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-getmore": {
+                "op-getmore": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -113,31 +113,31 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-insert": {
+                "opRepl-insert": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-query": {
+                "opRepl-query": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-update": {
+                "opRepl-update": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-delete": {
+                "opRepl-delete": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-getmore": {
+                "opRepl-getmore": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -167,25 +167,25 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-timedOut": {
+                "cursor-timedOut": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-noTimeout": {
+                "cursor-open-noTimeout": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-pinned": {
+                "cursor-open-pinned": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-total": {
+                "cursor-open-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -203,25 +203,25 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-write-out": {
+                "WT-write-out": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-write-available": {
+                "WT-write-available": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-read-out": {
+                "WT-read-out": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-read-available": {
+                "WT-read-available": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
@@ -239,13 +239,13 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 0.1
                 },
-                "metrics-operation-scanAndOrder": {
+                "scanAndOrder": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-operation-writeConflicts": {
+                "writeConflicts": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -263,85 +263,85 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 0.1
                 },
-                "metrics-document-deleted": {
+                "doc-deleted": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-document-inserted": {
+                "doc-inserted": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-document-returned": {
+                "doc-returned": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-document-updated": {
+                "doc-updated": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-queryExecutor-scannedKeys": {
+                "scannedKeys": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-queryExecutor-scannedDocs": {
+                "scannedDocs": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-ttl-deletedDocuments": {
+                "deletedDocuments": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-ttl-passes": {
+                "passes": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-activeClients-total": {
+                "clients-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-activeClients-readers": {
+                "clients-readers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-activeClients-writers": {
+                "clients-writers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-currentQueue-total": {
+                "queue-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-currentQueue-readers": {
+                "queue-readers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-currentQueue-writers": {
+                "queue-writers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
@@ -350,18 +350,18 @@
             },
             "groups": {
                 "opcounters": [
-                    "opcounters-insert",
-                    "opcounters-query",
-                    "opcounters-update",
-                    "opcounters-delete",
-                    "opcounters-getmore"
+                    "op-insert",
+                    "op-query",
+                    "op-update",
+                    "op-delete",
+                    "op-getmore"
                 ],
                 "opcountersRepl": [
-                    "opcountersRepl-insert",
-                    "opcountersRepl-query",
-                    "opcountersRepl-update",
-                    "opcountersRepl-delete",
-                    "opcountersRepl-getmore"
+                    "opRepl-insert",
+                    "opRepl-query",
+                    "opRepl-update",
+                    "opRepl-delete",
+                    "opRepl-getmore"
                 ],
                 "connections": [
                     "connections-current",
@@ -369,52 +369,52 @@
                     "connections-available"
                 ],
                 "metrics-cursor": [
-                    "metrics-cursor-timedOut",
-                    "metrics-cursor-open-noTimeout",
-                    "metrics-cursor-open-pinned",
-                    "metrics-cursor-open-total"
+                    "cursor-timedOut",
+                    "cursor-open-noTimeout",
+                    "cursor-open-pinned",
+                    "cursor-open-total"
                 ],
                 "network": [
                     "network-bytesIn",
                     "network-bytesOut"
                 ],
                 "wiredTiger-concurrentTransactions": [
-                    "wiredTiger-concurrentTransactions-write-out",
-                    "wiredTiger-concurrentTransactions-write-available",
-                    "wiredTiger-concurrentTransactions-read-out",
-                    "wiredTiger-concurrentTransactions-read-available"
+                    "WT-write-out",
+                    "WT-write-available",
+                    "WT-read-out",
+                    "WT-read-available"
                 ],
                 "metrics-operation": [
-                    "metrics-operation-scanAndOrder",
-                    "metrics-operation-writeConflicts"
+                    "scanAndOrder",
+                    "writeConflicts"
                 ],
                 "wiredTiger-cache": [
                     "wiredTiger-cache-usage",
                     "wiredTiger-cache-dirty-usage"
                 ],
                 "metrics-document": [
-                    "metrics-document-deleted",
-                    "metrics-document-inserted",
-                    "metrics-document-returned",
-                    "metrics-document-updated"
+                    "doc-deleted",
+                    "doc-inserted",
+                    "doc-returned",
+                    "doc-updated"
                 ],
                 "metrics-queryExecutor": [
-                    "metrics-queryExecutor-scannedKeys",
-                    "metrics-queryExecutor-scannedDocs"
+                    "scannedKeys",
+                    "scannedDocs"
                 ],
                 "metrics-ttl": [
-                    "metrics-ttl-deletedDocuments",
-                    "metrics-ttl-passes"
+                    "deletedDocuments",
+                    "passes"
                 ],
                 "globalLock-activeClients": [
-                    "globalLock-activeClients-total",
-                    "globalLock-activeClients-readers",
-                    "globalLock-activeClients-writers"
+                    "clients-total",
+                    "clients-readers",
+                    "clients-writers"
                 ],
                 "globalLock-currentQueue": [
-                    "globalLock-currentQueue-total",
-                    "globalLock-currentQueue-readers",
-                    "globalLock-currentQueue-writers"
+                    "queue-total",
+                    "queue-readers",
+                    "queue-writers"
                 ]
             },
             "display": [
@@ -448,7 +448,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-2erb3q0f"
+            "image": "img-yot7lueh"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -511,31 +511,31 @@
             "enable": true,
             "cmd": "appctl monitor",
             "items": {
-                "opcounters-insert": {
+                "op-insert": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-query": {
+                "op-query": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-update": {
+                "op-update": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-delete": {
+                "op-delete": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-getmore": {
+                "op-getmore": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -547,31 +547,31 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-insert": {
+                "opRepl-insert": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-query": {
+                "opRepl-query": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-update": {
+                "opRepl-update": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-delete": {
+                "opRepl-delete": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcountersRepl-getmore": {
+                "opRepl-getmore": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -601,25 +601,25 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-timedOut": {
+                "cursor-timedOut": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-noTimeout": {
+                "cursor-open-noTimeout": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-pinned": {
+                "cursor-open-pinned": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-total": {
+                "cursor-open-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -637,25 +637,25 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-write-out": {
+                "WT-write-out": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-write-available": {
+                "WT-write-available": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-read-out": {
+                "WT-read-out": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "wiredTiger-concurrentTransactions-read-available": {
+                "WT-read-available": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
@@ -673,13 +673,13 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 0.1
                 },
-                "metrics-operation-scanAndOrder": {
+                "scanAndOrder": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-operation-writeConflicts": {
+                "writeConflicts": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -697,49 +697,49 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 0.1
                 },
-                "metrics-document-deleted": {
+                "doc-deleted": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-document-inserted": {
+                "doc-inserted": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-document-returned": {
+                "doc-returned": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-document-updated": {
+                "doc-updated": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-queryExecutor-scannedKeys": {
+                "scannedKeys": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-queryExecutor-scannedDocs": {
+                "scannedDocs": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-ttl-deletedDocuments": {
+                "deletedDocuments": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-ttl-passes": {
+                "passes": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -751,37 +751,37 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-activeClients-total": {
+                "clients-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-activeClients-readers": {
+                "clients-readers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-activeClients-writers": {
+                "clients-writers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-currentQueue-total": {
+                "queue-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-currentQueue-readers": {
+                "queue-readers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "globalLock-currentQueue-writers": {
+                "queue-writers": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "latest",
@@ -790,18 +790,18 @@
             },
             "groups": {
                 "opcounters": [
-                    "opcounters-insert",
-                    "opcounters-query",
-                    "opcounters-update",
-                    "opcounters-delete",
-                    "opcounters-getmore"
+                    "op-insert",
+                    "op-query",
+                    "op-update",
+                    "op-delete",
+                    "op-getmore"
                 ],
                 "opcountersRepl": [
-                    "opcountersRepl-insert",
-                    "opcountersRepl-query",
-                    "opcountersRepl-update",
-                    "opcountersRepl-delete",
-                    "opcountersRepl-getmore"
+                    "opRepl-insert",
+                    "opRepl-query",
+                    "opRepl-update",
+                    "opRepl-delete",
+                    "opRepl-getmore"
                 ],
                 "connections": [
                     "connections-current",
@@ -809,52 +809,52 @@
                     "connections-available"
                 ],
                 "metrics-cursor": [
-                    "metrics-cursor-timedOut",
-                    "metrics-cursor-open-noTimeout",
-                    "metrics-cursor-open-pinned",
-                    "metrics-cursor-open-total"
+                    "cursor-timedOut",
+                    "cursor-open-noTimeout",
+                    "cursor-open-pinned",
+                    "cursor-open-total"
                 ],
                 "network": [
                     "network-bytesIn",
                     "network-bytesOut"
                 ],
                 "wiredTiger-concurrentTransactions": [
-                    "wiredTiger-concurrentTransactions-write-out",
-                    "wiredTiger-concurrentTransactions-write-available",
-                    "wiredTiger-concurrentTransactions-read-out",
-                    "wiredTiger-concurrentTransactions-read-available"
+                    "WT-write-out",
+                    "WT-write-available",
+                    "WT-read-out",
+                    "WT-read-available"
                 ],
                 "metrics-operation": [
-                    "metrics-operation-scanAndOrder",
-                    "metrics-operation-writeConflicts"
+                    "scanAndOrder",
+                    "writeConflicts"
                 ],
                 "wiredTiger-cache": [
                     "wiredTiger-cache-usage",
                     "wiredTiger-cache-dirty-usage"
                 ],
                 "metrics-document": [
-                    "metrics-document-deleted",
-                    "metrics-document-inserted",
-                    "metrics-document-returned",
-                    "metrics-document-updated"
+                    "doc-deleted",
+                    "doc-inserted",
+                    "doc-returned",
+                    "doc-updated"
                 ],
                 "metrics-queryExecutor": [
-                    "metrics-queryExecutor-scannedKeys",
-                    "metrics-queryExecutor-scannedDocs"
+                    "scannedKeys",
+                    "scannedDocs"
                 ],
                 "metrics-ttl": [
-                    "metrics-ttl-deletedDocuments",
-                    "metrics-ttl-passes"
+                    "deletedDocuments",
+                    "passes"
                 ],
                 "globalLock-activeClients": [
-                    "globalLock-activeClients-total",
-                    "globalLock-activeClients-readers",
-                    "globalLock-activeClients-writers"
+                    "clients-total",
+                    "clients-readers",
+                    "clients-writers"
                 ],
                 "globalLock-currentQueue": [
-                    "globalLock-currentQueue-total",
-                    "globalLock-currentQueue-readers",
-                    "globalLock-currentQueue-writers"
+                    "queue-total",
+                    "queue-readers",
+                    "queue-writers"
                 ]
             },
             "display": [
@@ -889,7 +889,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-2erb3q0f"
+            "image": "img-yot7lueh"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -949,31 +949,31 @@
             "enable": true,
             "cmd": "appctl monitor",
             "items": {
-                "opcounters-insert": {
+                "op-insert": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-query": {
+                "op-query": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-update": {
+                "op-update": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-delete": {
+                "op-delete": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "opcounters-getmore": {
+                "op-getmore": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -1003,7 +1003,7 @@
                     "statistics_type": "latest",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-timedOut": {
+                "cursor-timedOut": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -1021,13 +1021,13 @@
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-pinned": {
+                "cursor-open-pinned": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
                     "scale_factor_when_display": 1
                 },
-                "metrics-cursor-open-total": {
+                "cursor-open-total": {
                     "unit": "",
                     "value_type": "int",
                     "statistics_type": "delta",
@@ -1066,11 +1066,11 @@
             },
             "groups": {
                 "opcounters": [
-                    "opcounters-insert",
-                    "opcounters-query",
-                    "opcounters-update",
-                    "opcounters-delete",
-                    "opcounters-getmore"
+                    "op-insert",
+                    "op-query",
+                    "op-update",
+                    "op-delete",
+                    "op-getmore"
                 ],
                 "connections": [
                     "connections-current",
@@ -1078,11 +1078,11 @@
                     "connections-available"
                 ],
                 "metrics-cursor": [
-                    "metrics-cursor-timedOut",
+                    "cursor-timedOut",
                     "metrics-cursor-open-multiTarget",
                     "metrics-cursor-open-singleTarget",
-                    "metrics-cursor-open-pinned",
-                    "metrics-cursor-open-total"
+                    "cursor-open-pinned",
+                    "cursor-open-total"
                 ],
                 "network": [
                     "network-bytesIn",
