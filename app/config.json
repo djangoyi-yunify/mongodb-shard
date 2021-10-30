@@ -414,9 +414,9 @@
                     }, {
                         "key": "conf.replication.oplogSizeMB",
                         "label": "Shard's replication.oplogSizeMB",
-                        "description": "Unit: MB, defalut value: 2048",
+                        "description": "Unit: MB, defalut value: 20480",
                         "type": "integer",
-                        "default": 2048,
+                        "default": 20480,
                         "required": "no",
                         "min": 990,
                         "max": 51200
