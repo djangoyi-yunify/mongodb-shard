@@ -1,0 +1,5 @@
+flush > /data/appctl/data/conf.zabbix.new << CONF_ZABBIX_NEW
+Server={{ getv "/env/conf.zabbix.server.addr" }}
+ListenPort={{ getv "/env/conf.zabbix.agent.port" }}
+Enabled={{ getv "/env/conf.zabbix.agent.enabled" }}
+CONF_ZABBIX_NEW

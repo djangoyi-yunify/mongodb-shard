@@ -296,6 +296,36 @@
                     "required": "no"
                 },
                 {
+                    "key": "conf.zabbix.server.addr",
+                    "label": "Zabbix server's ip address",
+                    "description": "Zabbix server's ip address",
+                    "type": "string",
+                    "default": "",
+                    "required": "no"
+                },
+                {
+                    "key": "conf.zabbix.agent.port",
+                    "label": "Zabbix agent's listening port",
+                    "description": "Zabbix agent's listening port",
+                    "type": "integer",
+                    "default": 10050,
+                    "min": 1025,
+                    "max": 65535,
+                    "required": "no"
+                },
+                {
+                    "key": "conf.zabbix.agent.enabled",
+                    "label": "Enable zabbix agent or not",
+                    "description": "Enable zabbix agent or not",
+                    "default": "no",
+                    "type": "string",
+                    "range": [
+                      "yes",
+                      "no"
+                    ],
+                    "required": "no"
+                },
+                {
                     "key": "mongos_node",
                     "description": "The role configuration properties of the application",
                     "type": "array",

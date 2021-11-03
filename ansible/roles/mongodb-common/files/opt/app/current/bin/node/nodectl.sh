@@ -23,6 +23,9 @@ MONGOS_MONITOR_ITEM_FILE=/opt/app/current/bin/node/mongos.monitor
 SHARD_MONITOR_ITEM_FILE=/opt/app/current/bin/node/shard.monitor
 HEALTH_CHECK_FLAG_FILE=/data/appctl/data/health.check.flag
 BACKUP_FLAG_FILE=/data/appctl/data/backup.flag
+CONF_ZABBIX_INFO_FILE=/data/appctl/data/conf.zabbix
+ZABBIX_CONF_PATH=/etc/zabbix
+ZABBIX_LOG_PATH=/data/zabbix-log
 
 # runMongoCmd
 # desc run mongo shell
@@ -245,6 +248,28 @@ MONGO_CONF
   fi
 }
 
+createZabbixConf() {
+  local zServer=$(getItemFromFile Server $CONF_ZABBIX_INFO_FILE)
+  local zListenPort=$(getItemFromFile ListenPort $CONF_ZABBIX_INFO_FILE)
+  cat > $ZABBIX_CONF_PATH/zabbix_agentd.conf <<ZABBIX_CONF
+PidFile=/var/run/zabbix/zabbix_agentd.pid
+LogFile=/data/zabbix-log/zabbix_agentd.log
+LogFileSize=50
+Server=$zServer
+ListenPort=$zListenPort
+Hostname=system.hostname
+Include=/etc/zabbix/zabbix_agentd.d/*.conf
+UnsafeUserParameters=1
+ZABBIX_CONF
+}
+
+updateZabbixConf() {
+  if ! diff $CONF_ZABBIX_INFO_FILE $CONF_ZABBIX_INFO_FILE.new; then
+    cat $CONF_ZABBIX_INFO_FILE.new > $CONF_ZABBIX_INFO_FILE
+    createZabbixConf
+  fi
+}
+
 updateMongoConf() {
   if ! diff $CONF_INFO_FILE $CONF_INFO_FILE.new; then
     cat $CONF_INFO_FILE.new > $CONF_INFO_FILE
@@ -435,6 +460,17 @@ doWhenReplPreStart() {
   fi
 }
 
+refreshZabbixAgentStatus() {
+  zEnabled=$(getItemFromFile Enabled $CONF_ZABBIX_INFO_FILE)
+  if [ $zEnabled = "yes" ]; then
+    systemctl restart zabbix-agent.service || :
+    log "zabbix-agent restarted"
+  else
+    systemctl stop zabbix-agent.service || :
+    log "zabbix-agent stopped"
+  fi
+}
+
 start() {
   doWhenMongosPreStart
   doWhenReplPreStart
@@ -444,6 +480,9 @@ start() {
   _start
   if ! isNodeFirstCreate; then enableHealthCheck; fi
   clearNodeFirstCreateFlag
+  # start zabbix-agent
+  updateZabbixConf
+  refreshZabbixAgentStatus
 }
 
 # sortHostList
@@ -736,10 +775,17 @@ doWhenReplStop() {
   log "node stopped"
 }
 
+stopZabbixAgent() {
+  systemctl stop zabbix-agent.service || :
+  log "zabbix-agent stopped"
+}
+
 stop() {
   disableHealthCheck
   doWhenMongosStop
   doWhenReplStop
+  # stop zabbix-agent
+  stopZabbixAgent
 }
 
 getNodesOrder() {
@@ -821,6 +867,7 @@ clusterPreInit() {
   # folder
   mkdir -p $MONGODB_DATA_PATH $MONGODB_LOG_PATH $MONGODB_CONF_PATH
   chown -R mongod:svc $MONGODB_DATA_PATH $MONGODB_LOG_PATH $MONGODB_CONF_PATH
+  chown -R zabbix:zabbix $ZABBIX_LOG_PATH
   # first create flag
   touch $NODE_FIRST_CREATE_FLAG_FILE
   # repl.key
@@ -1042,6 +1089,12 @@ doWhenReplConfChanged() {
   fi
 }
 
+doWhenZabbixConfChanged() {
+  if diff $CONF_ZABBIX_INFO_FILE $CONF_ZABBIX_INFO_FILE.new; then return 0; fi
+  updateZabbixConf
+  refreshZabbixAgentStatus
+}
+
 checkConfdChange() {
   if [ ! -d /data/appctl/logs ]; then
     log "cluster pre-init"
@@ -1064,6 +1117,8 @@ checkConfdChange() {
   
   doWhenMongosConfChanged
   doWhenReplConfChanged
+
+  doWhenZabbixConfChanged
 }
 
 msGetServerStatus() {

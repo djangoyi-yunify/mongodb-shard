@@ -15,7 +15,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-pcqanh8q"
+            "image": "img-2pajescp"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -448,7 +448,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-pcqanh8q"
+            "image": "img-2pajescp"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -889,7 +889,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-pcqanh8q"
+            "image": "img-2pajescp"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -1111,6 +1111,9 @@
     "env": {
         "conf.userPass": {{env.conf.userPass}},
         "conf.storage.engine": {{env.conf.storage.engine}},
+        "conf.zabbix.server.addr": {{env.conf.zabbix.server.addr}},
+        "conf.zabbix.agent.port": {{env.conf.zabbix.agent.port}},
+        "conf.zabbix.agent.enabled": {{env.conf.zabbix.agent.enabled}},
         "mongos_node.conf.net.port": {{env.mongos_node.conf.net.port}},
         "mongos_node.conf.setParameter.cursorTimeoutMillis": {{env.mongos_node.conf.setParameter.cursorTimeoutMillis}},
         "cs_node.conf.net.port": {{env.cs_node.conf.net.port}},
