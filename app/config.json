@@ -11,7 +11,7 @@
                     "type": "string",
                     "label": "Name",
                     "description": "The name of the application",
-                    "default": "MongoDB Sharded Cluster",
+                    "default": "MongoDB Sharding",
                     "required": "no"
                 },
                 {
