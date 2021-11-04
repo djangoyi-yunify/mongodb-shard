@@ -114,7 +114,7 @@
                 {
                     "key": "shard_node",
                     "description": "Properties for shard node",
-                    "label": "Shard Node",
+                    "label": "Sharded Node",
                     "type": "array",
                     "properties": [
                         {
@@ -186,7 +186,7 @@
                             "max": 16,
                             "default": 2,
                             "required": "yes",
-                            "resource_group": [2, 2]
+                            "resource_group": [1, 2]
                         }
                     ]
                 },
