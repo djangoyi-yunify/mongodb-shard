@@ -114,13 +114,13 @@
                 {
                     "key": "shard_node",
                     "description": "Properties for shard node",
-                    "label": "Sharded Node",
+                    "label": "Sharding Node",
                     "type": "array",
                     "properties": [
                         {
                             "key": "instance_class",
                             "label": "Instance Class",
-                            "description": "The instance type for the shard node",
+                            "description": "The instance type for the Sharding node",
                             "type": "integer",
                             "default": 202,
                             "range": [101, 202],

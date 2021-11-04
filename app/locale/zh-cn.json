@@ -40,7 +40,7 @@
     "Volume Size": "磁盘大小",
     "The volume size for each instance": "每个节点的磁盘大小, 用于数据持久化,生产环境建议最小设置为内存的 3 倍",
     "Each Mongos defaults to a single-node architecture, and you need to purchase more than two to ensure high availability.": "每个 Mongos 默认为单节点架构，您需购买 2 个以上来保障高可用。",
-    "The instance type for the shard node": "Shard 的实例类型",
+    "The instance type for the Sharding node": "Shard 的实例类型",
     "The replica number of the node": "每个分片的副本数量",
     "The instance type for the Mongos node": "Mongos 的实例类型",
     "Number of Shard nodes to be created, can NOT be decreased if the cluster has been created, each Shard consists of 1 primary node + 2 replica nodes": "要创建的 Shard 数量, 集群创建后不可删除, 每个 Shard 由 1 个主节点 + 2 个副本节点组成",
