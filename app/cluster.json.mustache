@@ -15,7 +15,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-v8qjf5u9"
+            "image": "img-d8ix0the"
         },
         "instance_class": {{cluster.cs_node.instance_class}},
         "count": {{cluster.cs_node.count}},
@@ -448,7 +448,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-v8qjf5u9"
+            "image": "img-d8ix0the"
         },
         "instance_class": {{cluster.shard_node.instance_class}},
         "count": {{cluster.shard_node.count}},
@@ -889,7 +889,7 @@
             "type":"kvm",
             "sriov_nic": true,
             "zone": "pek3",
-            "image": "img-v8qjf5u9"
+            "image": "img-d8ix0the"
         },
         "instance_class": {{cluster.mongos_node.instance_class}},
         "count": {{cluster.mongos_node.count}},
@@ -1111,6 +1111,7 @@
     "env": {
         "conf.userPass": {{env.conf.userPass}},
         "conf.storage.engine": {{env.conf.storage.engine}},
+        "conf.zabbix.userPass": {{env.conf.zabbix.userPass}},
         "conf.zabbix.server.addr": {{env.conf.zabbix.server.addr}},
         "conf.zabbix.agent.port": {{env.conf.zabbix.agent.port}},
         "conf.zabbix.agent.enabled": {{env.conf.zabbix.agent.enabled}},

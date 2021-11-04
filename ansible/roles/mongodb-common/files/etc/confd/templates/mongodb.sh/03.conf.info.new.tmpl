@@ -16,6 +16,7 @@ getShardingConfigDBString() {
 flush > /data/appctl/data/conf.info.new << CONF_INFO_NEW
 {{- if ne $nodeRole "mongos_node" }}
 replication_replSetName=$host_repl_name
+zabbix_pass={{ getv "/env/conf.zabbix.userPass" }}
 {{- else }}
 sharding_configDB=$(getShardingConfigDBString)
 user_pass={{ getv "/env/conf.userPass" }}
