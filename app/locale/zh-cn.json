@@ -47,12 +47,10 @@
     "The replica number of the node, it's a fixed number and can NOT be changed": "每个节点的副本数量，固定值不可更改",
     "Each ConfigServer defaults to a replica set architecture (three nodes), and modification is not currently supported." : "每个 Config Server 默认为副本集架构 (三节点)，暂不支持修改。",
 
-    "zabbix.agent.enabled.label": "开启 zabbix 客户端",
-    "zabbix.agent.enabled.description": "是否开启 zabbix 客户端，仅限 zabbix-agent 服务",
-    "zabbix.server.addr.label": "zabbix-server 地址",
-    "zabbix.server.addr.description": "对应的 zabbix-server address 列表，用逗号隔开，仅限 zabbix-agent 服务",
-    "zabbix.agent.port.label": "zabbix-agent 端口号",
-    "zabbix.agent.port.description": "zabbix 客户端端口号，仅限 zabbix-agent 服务",
+    "User zabbix's Password":"数据库 zabbix 用户密码",
+    "Zabbix server's ip address":"Zabbix Server 地址",
+    "Zabbix agent's listening port":"Zabbix Agent 监听端口，默认 10050",
+    "Enable zabbix agent or not":"开启 Zabbix Agent 服务",
 
     "User root's Password": "数据库 root 用户密码",
     "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32":"必须包含大小写字母和数字的组合, 可使用特殊字符(包括 @#%&*()_+-=), 长度在 8-32 之间",
