@@ -13,8 +13,8 @@ ERR_REPL_NOT_HEALTH=208
 MONGODB_DATA_PATH=/data/mongodb-data
 MONGODB_LOG_PATH=/data/mongodb-logs
 MONGODB_CONF_PATH=/data/mongodb-conf
-DB_QC_CLUSTER_PASS_FILE=/data/appctl/data/qc_cluster_pass
 DB_QC_LOCAL_PASS_FILE=/data/appctl/data/qc_local_pass
+DB_ZABBIX_LOCAL_PASS_FILE=/data/appctl/data/zabbix_local_pass
 HOSTS_INFO_FILE=/data/appctl/data/hosts.info
 CONF_INFO_FILE=/data/appctl/data/conf.info
 NODE_FIRST_CREATE_FLAG_FILE=/data/appctl/data/node.first.create.flag
@@ -251,14 +251,15 @@ MONGO_CONF
 createZabbixConf() {
   local zServer=$(getItemFromFile Server $CONF_ZABBIX_INFO_FILE)
   local zListenPort=$(getItemFromFile ListenPort $CONF_ZABBIX_INFO_FILE)
-  cat > $ZABBIX_CONF_PATH/zabbix_agentd.conf <<ZABBIX_CONF
-PidFile=/var/run/zabbix/zabbix_agentd.pid
-LogFile=/data/zabbix-log/zabbix_agentd.log
+  cat > $ZABBIX_CONF_PATH/zabbix_agent2.conf <<ZABBIX_CONF
+PidFile=/var/run/zabbix/zabbix_agent2.pid
+LogFile=/data/zabbix-log/zabbix_agent2.log
 LogFileSize=50
 Server=$zServer
+ServerActive=127.0.0.1
 ListenPort=$zListenPort
 Hostname=system.hostname
-Include=/etc/zabbix/zabbix_agentd.d/*.conf
+Include=/etc/zabbix/zabbix_agent2.d/*.conf
 UnsafeUserParameters=1
 ZABBIX_CONF
 }
@@ -463,11 +464,11 @@ doWhenReplPreStart() {
 refreshZabbixAgentStatus() {
   zEnabled=$(getItemFromFile Enabled $CONF_ZABBIX_INFO_FILE)
   if [ $zEnabled = "yes" ]; then
-    systemctl restart zabbix-agent.service || :
-    log "zabbix-agent restarted"
+    systemctl restart zabbix-agent2.service || :
+    log "zabbix-agent2 restarted"
   else
-    systemctl stop zabbix-agent.service || :
-    log "zabbix-agent stopped"
+    systemctl stop zabbix-agent2.service || :
+    log "zabbix-agent2 stopped"
   fi
 }
 
@@ -480,7 +481,7 @@ start() {
   _start
   if ! isNodeFirstCreate; then enableHealthCheck; fi
   clearNodeFirstCreateFlag
-  # start zabbix-agent
+  # start zabbix-agent2
   updateZabbixConf
   refreshZabbixAgentStatus
 }
@@ -605,6 +606,22 @@ EOF
   runMongoCmd "$jsstr" -P $MY_PORT
 }
 
+msAddUserZabbix() {
+  local user_pass="$(getItemFromFile user_pass $CONF_INFO_FILE)"
+  local jsstr=$(cat <<EOF
+admin = db.getSiblingDB("admin")
+admin.createUser(
+  {
+    user: "$DB_ZABBIX_USER",
+    pwd: "$(cat $DB_ZABBIX_LOCAL_PASS_FILE)",
+    roles: [ { role: "clusterMonitor", db: "admin" } ]
+  }
+)
+EOF
+  )
+  runMongoCmd "$jsstr" $@
+}
+
 msAddUserRoot() {
   local user_pass="$(getItemFromFile user_pass $CONF_INFO_FILE)"
   local jsstr=$(cat <<EOF
@@ -674,6 +691,8 @@ doWhenReplInit() {
   retry 60 3 0 msIsHostMaster "$MY_IP:$MY_PORT" -P $MY_PORT
   log "add local sys user"
   retry 60 3 0 msAddLocalSysUser
+  log "add zabbix user"
+  retry 60 3 0 msAddUserZabbix -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   log "update QingCloudControl database"
   msUpdateQingCloudControl -P $MY_PORT -u $DB_QC_USER -p $(cat $DB_QC_LOCAL_PASS_FILE)
   log "init replicaset done"
@@ -776,15 +795,15 @@ doWhenReplStop() {
 }
 
 stopZabbixAgent() {
-  systemctl stop zabbix-agent.service || :
-  log "zabbix-agent stopped"
+  systemctl stop zabbix-agent2.service || :
+  log "zabbix-agent2 stopped"
 }
 
 stop() {
   disableHealthCheck
   doWhenMongosStop
   doWhenReplStop
-  # stop zabbix-agent
+  # stop zabbix-agent2
   stopZabbixAgent
 }
 
@@ -874,9 +893,9 @@ clusterPreInit() {
   echo "$GLOBAL_UUID" | base64 > "$MONGODB_CONF_PATH/repl.key"
   chown mongod:svc $MONGODB_CONF_PATH/repl.key
   chmod 0400 $MONGODB_CONF_PATH/repl.key
-  #qc_cluster_pass
+  #zabbix_local_pass
   local encrypted=$(echo -n ${CLUSTER_ID}${GLOBAL_UUID} | sha256sum | base64)
-  echo ${encrypted:0:16} > $DB_QC_CLUSTER_PASS_FILE
+  echo ${encrypted:0:16} > $DB_ZABBIX_LOCAL_PASS_FILE
   #qc_local_pass
   encrypted=$(echo -n ${GLOBAL_UUID}${CLUSTER_ID} | sha256sum | base64)
   echo ${encrypted:16:16} > $DB_QC_LOCAL_PASS_FILE

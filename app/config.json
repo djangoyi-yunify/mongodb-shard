@@ -300,7 +300,7 @@
                     "label": "Zabbix server's ip address",
                     "description": "Zabbix server's ip address",
                     "type": "string",
-                    "default": "",
+                    "default": "127.0.0.1",
                     "required": "no"
                 },
                 {
