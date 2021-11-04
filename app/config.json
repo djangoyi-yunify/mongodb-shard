@@ -11,7 +11,7 @@
                     "type": "string",
                     "label": "Name",
                     "description": "The name of the application",
-                    "default": "MongoDB Sharded Cluster",
+                    "default": "MongoDB Sharding",
                     "required": "no"
                 },
                 {
@@ -114,13 +114,13 @@
                 {
                     "key": "shard_node",
                     "description": "Properties for shard node",
-                    "label": "Shard Node",
+                    "label": "Sharding Node",
                     "type": "array",
                     "properties": [
                         {
                             "key": "instance_class",
                             "label": "Instance Class",
-                            "description": "The instance type for the shard node",
+                            "description": "The instance type for the Sharding node",
                             "type": "integer",
                             "default": 202,
                             "range": [101, 202],
@@ -173,9 +173,10 @@
                             "description": "The volume size for each instance",
                             "type": "integer",
                             "default": 200,
-                            "min": 200,
+                            "min": 50,
                             "step": 50,
-                            "required": "yes"
+                            "required": "yes",
+                            "resource_group": [50, 200]
                         },
                         {
                             "key": "count",
@@ -186,7 +187,7 @@
                             "max": 16,
                             "default": 2,
                             "required": "yes",
-                            "resource_group": [2, 2]
+                            "resource_group": [1, 2]
                         }
                     ]
                 },
