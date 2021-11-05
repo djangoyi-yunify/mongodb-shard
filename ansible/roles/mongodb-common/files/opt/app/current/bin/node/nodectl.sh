@@ -257,7 +257,6 @@ LogFileSize=50
 Server=$zServer
 #ServerActive=127.0.0.1
 ListenPort=$zListenPort
-Hostname=system.hostname
 Include=/etc/zabbix/zabbix_agent2.d/*.conf
 UnsafeUserParameters=1
 ZABBIX_CONF
@@ -1389,9 +1388,6 @@ preRestore() {
   echo "$GLOBAL_UUID" | base64 > "$MONGODB_CONF_PATH/repl.key"
   chown mongod:svc $MONGODB_CONF_PATH/repl.key
   chmod 0400 $MONGODB_CONF_PATH/repl.key
-  #qc_cluster_pass
-  local encrypted=$(echo -n ${CLUSTER_ID}${GLOBAL_UUID} | sha256sum | base64)
-  echo ${encrypted:0:16} > $DB_QC_CLUSTER_PASS_FILE
   #qc_local_pass
   encrypted=$(echo -n ${GLOBAL_UUID}${CLUSTER_ID} | sha256sum | base64)
   echo ${encrypted:16:16} > $DB_QC_LOCAL_PASS_FILE
@@ -1478,11 +1474,13 @@ doWhenRestoreRepl() {
   local jsstr
   retry 60 3 0 msGetHostDbVersion -P $NET_MAINTAIN_PORT
 
-  # change qc_master's passowrd
+  # change qc_master and zabbix's passowrd
   local newpass=$(cat $DB_QC_LOCAL_PASS_FILE)
+  local zabbix_pass=$(getItemFromFile zabbix_pass $CONF_INFO_FILE.new)
   jsstr=$(cat <<EOF
 mydb = db.getSiblingDB("admin");
 mydb.changeUserPassword("$DB_QC_USER", "$newpass");
+mydb.changeUserPassword("$DB_ZABBIX_USER", "$zabbix_pass");
 EOF
   )
   runMongoCmd "$jsstr" -P $NET_MAINTAIN_PORT
@@ -1635,6 +1633,9 @@ postRestore() {
   doWhenMongosPostRestore
   rm -rf $BACKUP_FLAG_FILE
   enableHealthCheck
+  # refresh zabbix's status
+  updateZabbixConf
+  refreshZabbixAgentStatus
 }
 
 restore() {

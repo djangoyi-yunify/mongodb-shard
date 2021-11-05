@@ -94,6 +94,7 @@
                             "type": "integer",
                             "default": 20,
                             "min": 20,
+                            "max": 20,
                             "step": 20,
                             "required": "yes"
                         },
