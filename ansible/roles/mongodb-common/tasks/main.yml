@@ -6,20 +6,20 @@
     shell: /sbin/nologin
     create_home: false
 
-# - name: re-install ca-certificates
-#   apt:
-#     update_cache: yes
-#     name: ['ca-certificates']
-#     state: latest
+- name: re-install ca-certificates
+  apt:
+    update_cache: yes
+    name: ['ca-certificates']
+    state: latest
 
-# - name: install zabbix repo config
-#   shell: cd /tmp ;wget https://repo.zabbix.com/zabbix/5.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.4-1+ubuntu18.04_all.deb && dpkg -i zabbix-release_5.4-1+ubuntu18.04_all.deb
+- name: install zabbix repo config
+  shell: cd /tmp ;wget https://repo.zabbix.com/zabbix/5.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_5.4-1+ubuntu18.04_all.deb && dpkg -i zabbix-release_5.4-1+ubuntu18.04_all.deb
 
-# - name: apt install zabbix-agent2
-#   apt:
-#     update_cache: yes
-#     name: ['zabbix-agent2', 'zabbix-get', 'zabbix-sender']
-#     state: present
+- name: apt install zabbix-agent2
+  apt:
+    update_cache: yes
+    name: ['zabbix-agent2', 'zabbix-get', 'zabbix-sender']
+    state: present
 
 - name: stop zabbix-agent
   systemd:
@@ -27,23 +27,23 @@
     enabled: no
     state: stopped
 
-# - name: apt install needed packages
-#   apt:
-#     name: jq
-#     update_cache: yes
-#     state: latest
+- name: apt install needed packages
+  apt:
+    name: jq
+    update_cache: yes
+    state: latest
 
-# - name: install mongodb binaries
-#   include_role:
-#     name: install-1.0.6
-#   vars:
-#     opts:
-#       pkg_name: mongodb
-#       pkg_version: "{{ mongodb_version }}"
-#       pkg_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1804-{{ mongodb_version }}.tgz
-#       pkg_type: tgz
-#       creates: bin
-#       extracts: yes
+- name: install mongodb binaries
+  include_role:
+    name: install-1.0.6
+  vars:
+    opts:
+      pkg_name: mongodb
+      pkg_version: "{{ mongodb_version }}"
+      pkg_url: https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1804-{{ mongodb_version }}.tgz
+      pkg_type: tgz
+      creates: bin
+      extracts: yes
 
 - name: copy app files
   copy:
