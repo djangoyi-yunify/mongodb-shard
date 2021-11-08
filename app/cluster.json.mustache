@@ -1129,6 +1129,12 @@
         "shard_node.conf.replication.enableMajorityReadConcern": {{env.shard_node.conf.replication.enableMajorityReadConcern}},
         "shard_node.conf.replication.oplogSizeMB": {{env.shard_node.conf.replication.oplogSizeMB}}
     },
+    "endpoints": {
+      "Mongos Service": {
+         "port": {{env.mongos_node.conf.net.port}},
+         "protocol": "TCP"
+      }
+   },
     "health_check":{
       "enable": true,
       "interval_sec": 60,
