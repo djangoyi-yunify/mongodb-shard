@@ -318,7 +318,7 @@
                 {
                     "key": "conf.zabbix.agent.port",
                     "label": "Zabbix agent's listening port",
-                    "description": "Zabbix agent's listening port",
+                    "description": "Default value: 10050",
                     "type": "integer",
                     "default": 10050,
                     "min": 1025,

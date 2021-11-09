@@ -1133,6 +1133,18 @@
       "Mongos Service": {
          "port": {{env.mongos_node.conf.net.port}},
          "protocol": "TCP"
+      },
+      "Config Server": {
+         "port": {{env.cs_node.conf.net.port}},
+         "protocol": "TCP"
+      },
+      "Shard": {
+         "port": {{env.shard_node.conf.net.port}},
+         "protocol": "TCP"
+      },
+       "Zabbix Agent2": {
+         "port": {{env.conf.zabbix.agent.port}},
+         "protocol": "TCP"
       }
    },
     "health_check":{
