@@ -49,7 +49,8 @@
 
     "User zabbix's Password":"数据库 zabbix 用户密码",
     "Zabbix server's ip address":"Zabbix Server 地址",
-    "Zabbix agent's listening port":"Zabbix Agent 监听端口，默认 10050",
+    "Zabbix agent's listening port":"Zabbix Agent 监听端口",
+    "Default value: 10050":" 默认值： 10050",
     "Enable zabbix agent or not":"开启 Zabbix Agent 服务",
 
     "User root's Password": "数据库 root 用户密码",
